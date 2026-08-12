@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/player_main"
+    android:fitsSystemWindows="true"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/player_view_folder"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:id="@+id/player_view_folder"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/player_view_artist"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:layout_marginTop="32dp"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:id="@+id/player_view_album"
+        android:layout_below="@id/player_view_folder"/>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/player_view_artist"
+        android:gravity="center"
+        android:textSize="24sp"
+        android:layout_marginTop="32dp"
+        android:textAlignment="center"
+        android:textColor="?attr/colorOnSurface"
+        android:id="@+id/player_view_artist"
+        android:layout_below="@id/player_view_album"/>
+
+    <androidx.media3.ui.PlayerView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/player_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/view_border_red"
+        android:layout_below="@id/player_view_artist">
+    </androidx.media3.ui.PlayerView>
+
+</RelativeLayout>

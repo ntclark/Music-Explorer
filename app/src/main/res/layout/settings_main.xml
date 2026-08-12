@@ -1,0 +1,162 @@
+<RelativeLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:layout_marginTop="32dp"
+    android:id="@+id/settings_main">
+
+    <TextView
+        android:id="@+id/settings_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:text="@string/specify_settings"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/root_folder_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/root_folder_label"
+        android:textAlignment="textEnd"
+        android:textSize="18sp"
+        android:paddingTop="24dp"
+        android:layout_below="@id/settings_label"/>
+
+    <TextView
+        android:id="@+id/root_folder"
+        android:layout_width="160dp"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/root_folder_label"
+        android:layout_toRightOf="@+id/root_folder_label"
+        android:textAlignment="center"
+        android:textSize="18sp" />
+
+    <Button
+        android:id="@+id/root_folder_get"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Browse"
+        android:layout_alignBaseline="@+id/root_folder"
+        android:layout_toRightOf="@+id/root_folder"/>
+
+    <TextView
+        android:id="@+id/auto_display_columns_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:paddingTop="24dp"
+        android:layout_below="@id/root_folder_label"
+        android:text="@string/auto_display_columns_label"/>
+
+    <TextView
+        android:id="@+id/auto_display_columns_value"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="24sp"
+        android:text="0"
+        android:layout_marginTop="48px"
+        android:layout_marginLeft="256px"
+        android:layout_below="@id/auto_display_columns_label" />
+
+    <Button
+        android:id="@+id/auto_display_columns_value_plus"
+        android:layout_width="128px"
+        android:layout_height="128px"
+        android:background="@android:color/transparent"
+        android:textSize="24sp"
+        android:layout_below="@id/auto_display_columns_value"
+        android:layout_marginTop="-64dp"
+        android:layout_toRightOf="@id/auto_display_columns_value"
+        android:text="+" />
+
+    <Button
+        android:id="@+id/auto_display_columns_value_minus"
+        android:layout_width="128px"
+        android:layout_height="128px"
+        android:background="@android:color/transparent"
+        android:textSize="24sp"
+        android:layout_below="@id/auto_display_columns_value_plus"
+        android:layout_toRightOf="@id/auto_display_columns_value"
+        android:text="-" />
+
+    <LinearLayout
+            android:id="@+id/resume_play"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:weightSum="4"
+            android:paddingTop="24dp"
+            android:layout_below="@id/auto_display_columns_value"
+            android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/resume_play_label"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:textSize="18sp"
+            android:text="@string/resume_play_label"
+            android:layout_below="@id/auto_display_columns_value" />
+
+        <Switch
+            android:id="@+id/resume_play_switch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_toRightOf="@id/resume_play_label"/>
+
+    </LinearLayout>
+    <!--    <LinearLayout
+                android:id="@+id/auto_display_folder_icons_group"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:weightSum="4"
+                android:paddingTop="24dp"
+                android:layout_below="@id/auto_display_columns_value"
+                android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/auto_display_folder_icons"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:textSize="18sp"
+                android:text="@string/auto_display_folder_icons"
+                android:layout_below="@id/auto_display_columns_value" />
+
+            <Switch
+                android:id="@+id/auto_display_folder_icons_switch"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_toRightOf="@id/auto_display_folder_icons"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/auto_display_folder_icons_more"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="12sp"
+            android:text="@string/auto_display_folder_icons_more"
+            android:layout_below="@id/auto_display_folder_icons_group" />-->
+
+    <RelativeLayout
+        android:id="@+id/InnerRelativeLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" >
+
+        <TextView
+            android:id="@+id/settings_set_root_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:text="@string/settings_set_root_warning"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
