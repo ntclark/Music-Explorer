@@ -413,80 +413,12 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             properties.parentList.push(aFolder.getUri().toString());
     }
 
-
     public DocumentFile getParentOf(DocumentFile aFolder,Boolean isNavigation) {
         if ( null == aFolder )
             return null;
         if ( 0 == properties.parentList.size() )
             return null;
         return DocumentFile.fromTreeUri(this,Uri.parse(isNavigation ? properties.parentList.pop() : properties.parentList.peek()));
-    }
-
-    public Bitmap getFolderImage(DocumentFile theFolder) {
-
-        ConstraintLayout layout = new ConstraintLayout(this);
-
-        layout.setId(R.id.folder_layout);
-        layout.setFitsSystemWindows(true);
-
-        ConstraintLayout.LayoutParams theLayoutParms = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        ImageView imageView = new ImageView(this);
-        imageView.setId(R.id.folder_image_view);
-
-        ConstraintLayout.LayoutParams imageViewParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
-
-        imageView.setImageResource(R.drawable.folder);
-
-        imageViewParams.bottomToBottom = R.id.folder_layout;
-        imageViewParams.leftToLeft = R.id.folder_layout;
-        imageViewParams.topToTop = R.id.folder_layout;
-        imageViewParams.verticalBias = 0.0f;
-
-        imageView.setLayoutParams(imageViewParams);
-
-        TextView textView = new TextView(this);
-        textView.setId(R.id.folder_text_view);
-
-        ConstraintLayout.LayoutParams textViewParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);
-
-        textViewParams.width = 224;
-        textViewParams.height = 224;
-        textViewParams.leftMargin = 16;
-        textViewParams.rightMargin = 16;
-
-        textViewParams.bottomToBottom = R.id.folder_layout;
-        textViewParams.endToEnd = R.id.folder_layout;
-        textViewParams.horizontalBias = 0;
-        textViewParams.startToStart = R.id.folder_layout;
-        textViewParams.topToTop = R.id.folder_layout;
-        textViewParams.verticalBias = 1.7f;
-
-        textView.setLayoutParams(textViewParams);
-        textView.setForegroundGravity(Gravity.CENTER);
-        textView.setTextColor(Color.BLACK);
-        textView.setTextSize(20);
-        textView.setTypeface(textView.getTypeface(), Typeface.BOLD);
-
-        textView.setText(theFolder.getName());
-
-        layout.addView(imageView);
-        layout.addView(textView);
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-        layout.measure(displayMetrics.widthPixels, displayMetrics.heightPixels);
-        layout.layout(0, 0, displayMetrics.widthPixels, displayMetrics.heightPixels);
-        layout.buildDrawingCache();
-
-        Bitmap bitmap = Bitmap.createBitmap(layout.getMeasuredWidth(), layout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-
-        Canvas canvas = new Canvas(bitmap);
-
-        layout.draw(canvas);
-
-        return bitmap;
     }
 
     // Player.Listener methods:

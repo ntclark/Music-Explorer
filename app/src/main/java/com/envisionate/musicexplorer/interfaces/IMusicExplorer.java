@@ -23,6 +23,7 @@ import com.envisionate.musicexplorer.Globals;
 import com.envisionate.musicexplorer.MusicExplorer;
 import com.envisionate.musicexplorer.Play;
 import com.envisionate.musicexplorer.Settings;
+import com.envisionate.musicexplorer.Util;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -190,7 +191,7 @@ public class IMusicExplorer {
     }
 
     public Bitmap getFolderImage(DocumentFile theFolder) {
-        return theMusicExplorer.getFolderImage(theFolder);
+        return Util.getFolderImage(theMusicExplorer,theFolder);
     }
 
 }

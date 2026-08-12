@@ -1,6 +1,8 @@
 package com.envisionate.carservice;
 
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
+import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
+import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
 import android.content.Intent;
 import android.util.Log;
@@ -17,8 +19,10 @@ import androidx.car.app.validation.HostValidator;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
+import androidx.media3.common.MediaMetadata;
 
 import com.envisionate.carservice.screen.CarEntitiesScreen;
+import com.envisionate.carservice.screen.CarPlayerScreen;
 import com.envisionate.musicexplorer.MusicExplorer;
 import org.jspecify.annotations.NonNull;
 
@@ -41,6 +45,19 @@ public class CarService extends CarAppService {
             Log.d("MusicExplorer","onCreateScreen is called");
             theLifeCycle = getLifecycle();
             theLifeCycle.addObserver(new CarLifecycleObserver());
+            if ( ! ( null == theMusicExplorer ) ) {
+                if ( ! ( null == theMusicPlayer ) ) {
+                    CarPlayerScreen carPlayerScreen = new CarPlayerScreen(getCarContext());
+                    theMusicPlayer.addListener(carPlayerScreen);
+                    MediaMetadata md = new MediaMetadata.Builder()
+                            .setAlbumTitle(properties.getCurrentFolder().getName())
+                            .setTitle(properties.getCurrentFile().getName())
+                            .build();
+                    carPlayerScreen.onMediaMetadataChanged(md);
+                    theMusicPlayer.play();
+                    return carPlayerScreen;
+                }
+            }
             return new CarEntitiesScreen(getCarContext());
         }
 
