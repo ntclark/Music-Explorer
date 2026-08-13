@@ -96,16 +96,13 @@ public final class Util {
         layout.layout(0, 0, 224,224);
         int textHeight = textView.getLineCount() * textView.getLineHeight();
 
-        Log.d("MusicExplorer",String.format("%d %d ",textHeight,textView.getWidth()));
-
-        while ( 224 < textHeight && 10 < textSize ) {
+        while ( 224 < textHeight && 10.0f < textSize ) {
             textSize = textSize - 1.0f;
             textView.setTextSize(textSize);
             layout.invalidate();
             layout.measure(layout.getWidth(),layout.getHeight());
             layout.layout(0, 0, 224,224);
             textHeight = textView.getLineCount() * textView.getLineHeight();
-            Log.d("MusicExplorer",String.format("Adjusting: %d %d ",textHeight,textView.getWidth()));
         }
 
         Bitmap bitmap = Bitmap.createBitmap(layout.getMeasuredWidth(), layout.getMeasuredHeight(), Bitmap.Config.ARGB_8888);

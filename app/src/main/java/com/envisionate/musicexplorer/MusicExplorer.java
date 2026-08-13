@@ -7,8 +7,11 @@ import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
 
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -174,15 +177,12 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         }
 
         if ( ! playStarted ) {
-
             String startedByCar = getIntent().getStringExtra("StartedByCar");
-
             if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) ) {
                 Intent intent = new Intent("com.envisionate.musicexplorer.STARTED");
                 intent.setPackage("com.envisionate.musicexplorer");
                 getApplicationContext().sendBroadcast(intent);
             }
-
         }
     }
 
@@ -230,8 +230,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             return true;
         }
         if ( R.id.exit == item.getItemId() ) {
-            this.finish();
-            //System.exit(0);
+            this.finishAndRemoveTask();
             return true;
         }
         return false;

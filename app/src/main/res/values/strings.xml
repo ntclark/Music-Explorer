@@ -16,4 +16,6 @@
     <string name="auto_display_folder_icons_more">Otherwise, just the labels are displayed"</string>
     <string name="settings_set_root_warning">Please click Browse to select the root folder in your music files.</string>
     <string name="resume_play_label">Resume playback when started?</string>
+    <string name="bluetooth_connected">Bluetooth has connected</string>
+    <string name="bluetooth_disconnected">Bluetooth has disconnected</string>
 </resources>

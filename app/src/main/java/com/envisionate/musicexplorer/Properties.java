@@ -26,7 +26,7 @@ public class Properties {
 
     private DocumentFile currentFolder = null;
     private DocumentFile currentFile = null;
-    private Boolean resumePlayOnStart = false;
+    private Boolean resumePlayOnStart = true;
 
     private static SharedPreferences preferences = null;
 
@@ -66,7 +66,7 @@ public class Properties {
         }
 
         autoDisplayColumns = preferences.getInt("autoDisplayColumns",AUTO_DISPLAY_COLUMNS);
-        resumePlayOnStart = preferences.getBoolean("resumePlayOnStart",false);
+        resumePlayOnStart = preferences.getBoolean("resumePlayOnStart",resumePlayOnStart);
 
         uuid = preferences.getString("uuid", UUID.randomUUID().toString());
 
@@ -83,7 +83,7 @@ public class Properties {
         autoDisplayColumns = AUTO_DISPLAY_COLUMNS;
         currentFolder = null;
         currentFile = null;
-        resumePlayOnStart = false;
+        resumePlayOnStart = true;
         uuid = UUID.randomUUID().toString();
         savePreferences();
     }

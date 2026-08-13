@@ -44,7 +44,6 @@
         android:id="@+id/player_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/view_border_red"
         android:layout_below="@id/player_view_artist">
     </androidx.media3.ui.PlayerView>
 

@@ -15,8 +15,6 @@ import com.envisionate.carservice.screen.CarEntitiesScreen;
 @ExperimentalCarApi
 public class StartMusicExplorer extends Thread {
 
-    public static MusicExplorerStartedNotification theNotification = null;
-
     private Context theContext;
     private CarEntitiesScreen theWaitingScreen = null;
 
@@ -29,7 +27,6 @@ public class StartMusicExplorer extends Thread {
 /*    try {
         Thread.sleep(7000);
     } catch ( Exception ex ) { }*/
-
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {

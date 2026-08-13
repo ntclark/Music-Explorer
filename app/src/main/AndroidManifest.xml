@@ -5,7 +5,6 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
 
     <meta-data
         android:name="com.google.android.gms.car.application"
@@ -14,17 +13,14 @@
     <application
 
         android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
         android:icon="@drawable/track"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicExplorer">
 
-        <meta-data
-            android:name="com.google.android.gms.car.application"
-            android:resource="@xml/automotive_app_desc" />
+        <!--        android:dataExtractionRules="@xml/data_extraction_rules"-->
+        <!--        android:fullBackupContent="@xml/backup_rules"-->
+        <!--        android:roundIcon="@mipmap/ic_launcher_round"-->
 
         <meta-data
             android:name="com.google.android.gms.car.application"
@@ -34,7 +30,7 @@
             android:name="androidx.car.app.minCarApiLevel"
             android:value="8"/>
 
-        <meta-data
+<!--        <meta-data
             android:name="androidx.car.app.TintableAttributionIcon"
             android:resource="@drawable/track" />
 
@@ -43,7 +39,7 @@
 
         <meta-data
             android:name="com.google.android.gms.car.application.theme"
-            android:resource="@style/Theme.MusicExplorer"/>
+            android:resource="@style/Theme.MusicExplorer"/>-->
 
         <activity
             android:name="com.envisionate.musicexplorer.MusicExplorer"
@@ -86,25 +82,10 @@
         </service>
 
         <receiver
-            android:name="com.envisionate.musicexplorer.BluetoothReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
             android:name="com.envisionate.musicexplorer.StartMusicExplorerReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.envisionate.musicexplorer.START" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name="com.envisionate.musicexplorer.MusicExplorerStartedNotification"
-            android:exported="true">
-            <intent-filter>
                 <action android:name="com.envisionate.musicexplorer.STARTED" />
             </intent-filter>
         </receiver>

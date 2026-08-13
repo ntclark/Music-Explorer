@@ -7,7 +7,9 @@ import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
@@ -18,8 +20,11 @@ import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 public class Settings extends AppCompatActivity {
+
+    private static final int REQUEST_BLUETOOTH_PERMISSION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
