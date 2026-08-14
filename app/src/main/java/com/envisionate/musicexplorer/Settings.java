@@ -4,14 +4,10 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-
-import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.DocumentsContract;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,8 +15,12 @@ import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
+import androidx.car.app.annotations.ExperimentalCarApi;
+
+import com.envisionate.carservice.screen.CarEntitiesScreen;
 
 public class Settings extends AppCompatActivity {
 
@@ -113,12 +113,23 @@ public class Settings extends AppCompatActivity {
     }
 
 
+    @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if ( item.getItemId() == android.R.id.home ) {
             if ( null == theMusicExplorer.properties.getRootFolder() || "<click Browse>".equals(theMusicExplorer.properties.getRootFolder()) ) {
                 ((TextView)findViewById(R.id.settings_set_root_warning)).setVisibility(VISIBLE);
                 return false;
+            }
+            if ( ! ( null == CarEntitiesScreen.getWaitingScreen() ) ) {
+                new Handler(getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent intent = new Intent("com.envisionate.musicexplorer.SETUP_DONE");
+                        intent.setPackage("com.envisionate.musicexplorer");
+                        getApplicationContext().sendBroadcast(intent);
+                    }}
+                );
             }
             this.finish();
             return true;

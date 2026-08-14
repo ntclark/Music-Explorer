@@ -1,29 +1,13 @@
 package com.envisionate.musicexplorer;
 
-import static android.os.Looper.getMainLooper;
-import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
-import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Typeface;
-import android.icu.util.Measure;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -34,7 +18,6 @@ import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -42,7 +25,6 @@ import androidx.annotation.OptIn;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.car.app.annotations.ExperimentalCarApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
@@ -84,7 +66,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    theMusicExplorerInterface.onItemClicked(((itemModel)v.getTag()).getDocumentFile(),null,null);
+                    theMusicExplorerInterface.onItemClicked(((itemModel)v.getTag()).getDocumentFile(),null,null,false);
                 }
             });
 
@@ -171,18 +153,15 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         Boolean playStarted = false;
         if ( properties.getResumePlayOnStart() && null == theMusicPlayer ) {
             if ( ! ( null == properties.getCurrentFile() ) ) {
-                theMusicExplorerInterface.playCurrentTrack(this,null);
+                theMusicExplorerInterface.playCurrentTrack(this,null,false);
                 playStarted = true;
             }
         }
 
         if ( ! playStarted ) {
             String startedByCar = getIntent().getStringExtra("StartedByCar");
-            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) ) {
-                Intent intent = new Intent("com.envisionate.musicexplorer.STARTED");
-                intent.setPackage("com.envisionate.musicexplorer");
-                getApplicationContext().sendBroadcast(intent);
-            }
+            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
+                Util.broadcast(this,"com.envisionate.musicexplorer.STARTED");
         }
     }
 
@@ -226,7 +205,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             return true;
         }
         if ( item.getItemId() == android.R.id.home ) {
-            theMusicExplorerInterface.gotoParent();
+            theMusicExplorerInterface.gotoParent(false);
             return true;
         }
         if ( R.id.exit == item.getItemId() ) {

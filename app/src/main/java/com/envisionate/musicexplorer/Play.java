@@ -1,5 +1,7 @@
 package com.envisionate.musicexplorer;
 
+import static android.view.View.INVISIBLE;
+import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
 import static androidx.media3.common.Player.EVENT_TRACKS_CHANGED;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
@@ -20,8 +22,6 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
-import androidx.media3.common.Tracks;
-import androidx.media3.common.util.UnstableApi;
 import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 
@@ -117,7 +117,7 @@ public class Play extends AppCompatActivity implements Player.Listener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if ( item.getItemId() == android.R.id.home ) {
-            theMusicExplorerInterface.gotoParent();
+            theMusicExplorerInterface.gotoParent(false);
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -156,10 +156,14 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
     @Override
     public void onEvents(Player player, Player.Events events) {
-        if ( events.contains(EVENT_TRACKS_CHANGED) ) {
-            MediaItem mediaItem = player.getCurrentMediaItem();
-            Log.d("MusicExplorer",mediaItem.localConfiguration.uri.toString());
+        MediaItem mediaItem = player.getCurrentMediaItem();
+        if ( events.contains(EVENT_TRACKS_CHANGED) )
             properties.setCurrentFile(mediaItem.localConfiguration.uri.toString());
+        else if ( events.contains(EVENT_PLAYER_ERROR) ) {
+            ((TextView)findViewById(R.id.player_view_folder)).setVisibility(INVISIBLE);
+            String s = DocumentFile.fromTreeUri(this,mediaItem.localConfiguration.uri).getName();
+            ((TextView)findViewById(R.id.player_view_album)).setText(String.format("Track: %s",s));
+            ((TextView)findViewById(R.id.player_view_artist)).setText(String.format(getString(R.string.track_error)));
         }
         Log.d("PLAY",events.toString());
     }

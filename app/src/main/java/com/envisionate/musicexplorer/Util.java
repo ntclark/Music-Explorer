@@ -1,17 +1,14 @@
 package com.envisionate.musicexplorer;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -114,4 +111,9 @@ public final class Util {
         return bitmap;
     }
 
+    public static void broadcast(Activity theActivity, String theMessage) {
+        Intent intent = new Intent(theMessage);
+        intent.setPackage("com.envisionate.musicexplorer");
+        theActivity.getApplicationContext().sendBroadcast(intent);
+    }
 }

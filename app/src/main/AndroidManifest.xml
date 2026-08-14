@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.envisionate.musicexplorer"
-    xmlns:tools="http://schemas.android.com/tools">
+    package="com.envisionate.musicexplorer">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -18,10 +17,6 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MusicExplorer">
 
-        <!--        android:dataExtractionRules="@xml/data_extraction_rules"-->
-        <!--        android:fullBackupContent="@xml/backup_rules"-->
-        <!--        android:roundIcon="@mipmap/ic_launcher_round"-->
-
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
@@ -29,17 +24,6 @@
         <meta-data
             android:name="androidx.car.app.minCarApiLevel"
             android:value="8"/>
-
-<!--        <meta-data
-            android:name="androidx.car.app.TintableAttributionIcon"
-            android:resource="@drawable/track" />
-
-        <meta-data android:name="com.google.android.gms.car.notification.SmallIcon"
-            android:resource="@drawable/ic_launcher_background" />
-
-        <meta-data
-            android:name="com.google.android.gms.car.application.theme"
-            android:resource="@style/Theme.MusicExplorer"/>-->
 
         <activity
             android:name="com.envisionate.musicexplorer.MusicExplorer"
@@ -87,6 +71,10 @@
             <intent-filter>
                 <action android:name="com.envisionate.musicexplorer.START" />
                 <action android:name="com.envisionate.musicexplorer.STARTED" />
+                <action android:name="com.envisionate.musicexplorer.SETUP_NOTIFY"/>
+                <action android:name="com.envisionate.musicexplorer.SETUP_DONE"/>
+                <action android:name="com.envisionate.musicexplorer.PLAY_NOTIFY"/>
+                <action android:name="com.envisionate.musicexplorer.NAVIGATION_NOTIFY"/>
             </intent-filter>
         </receiver>
 

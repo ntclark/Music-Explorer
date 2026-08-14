@@ -2,12 +2,11 @@ package com.envisionate.carservice.screen;
 
 import static android.os.Looper.getMainLooper;
 import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
+import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
-import android.content.Intent;
 import android.os.Handler;
 import android.util.Log;
 
@@ -16,9 +15,7 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.CarProgressBar;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridSection;
 import androidx.car.app.model.GridTemplate;
@@ -30,9 +27,11 @@ import androidx.car.app.model.Section;
 import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
-import androidx.media3.common.*;
+import androidx.documentfile.provider.DocumentFile;
+import androidx.media3.common.MediaItem;
+import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.Player;
 
-import com.envisionate.musicexplorer.MusicExplorer;
 import com.envisionate.musicexplorer.R;
 
 import org.jspecify.annotations.NonNull;
@@ -51,6 +50,7 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
     private SectionedItemTemplate.Builder theSectionedItemTemplateBuilder = new SectionedItemTemplate.Builder();
 
     private String albumInformation = null;
+    private String errorInformation = null;
     private Boolean isPlaying = false;
     private long currentPosition = 0;
 
@@ -81,46 +81,55 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
                 .setTitle(null == albumInformation ? " " : albumInformation)
                 .build());
 
+        if ( ! ( null == errorInformation ) ) {
+            rowSectionBuilder.addItem(new Row.Builder()
+                    .setTitle(errorInformation)
+                    .build());
+        }
+
         sections.add(rowSectionBuilder.build());
 
-        gridSectionBuilder.addItem(new GridItem.Builder()
-                .setTitle(" ")
-                .setImage(playPrevious,GridItem.IMAGE_TYPE_LARGE)
-                .setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        theMusicExplorerInterface.previous();
-                    }
-                })
-                .build());
+        if ( null == errorInformation ) {
 
-        gridSectionBuilder.addItem(new GridItem.Builder()
-                .setTitle(" ")
-                .setImage(isPlaying ? playPause : playContinue,GridItem.IMAGE_TYPE_LARGE)
-                .setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        if ( isPlaying )
-                            theMusicExplorerInterface.pause();
-                        else
-                            theMusicExplorerInterface.play();
-                    }
-                })
-                .build());
+            gridSectionBuilder.addItem(new GridItem.Builder()
+                    .setTitle(" ")
+                    .setImage(playPrevious,GridItem.IMAGE_TYPE_LARGE)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick() {
+                            theMusicExplorerInterface.previous();
+                        }
+                    })
+                    .build());
 
-        gridSectionBuilder.addItem(new GridItem.Builder()
-                .setTitle(" ")
-                .setImage(playNext,GridItem.IMAGE_TYPE_LARGE)
-                .setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick() {
-                        theMusicExplorerInterface.next();
-                    }
-                })
-                .build());
+            gridSectionBuilder.addItem(new GridItem.Builder()
+                    .setTitle(" ")
+                    .setImage(isPlaying ? playPause : playContinue,GridItem.IMAGE_TYPE_LARGE)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick() {
+                            if ( isPlaying )
+                                theMusicExplorerInterface.pause();
+                            else
+                                theMusicExplorerInterface.play();
+                        }
+                    })
+                    .build());
 
-        sections.add(gridSectionBuilder.build());
+            gridSectionBuilder.addItem(new GridItem.Builder()
+                    .setTitle(" ")
+                    .setImage(playNext,GridItem.IMAGE_TYPE_LARGE)
+                    .setOnClickListener(new OnClickListener() {
+                        @Override
+                        public void onClick() {
+                            theMusicExplorerInterface.next();
+                        }
+                    })
+                    .build());
 
+            sections.add(gridSectionBuilder.build());
+
+        }
         /*
         I CANNOT FIGURE OUT THE FUCKING DOCUMENTATION FOR THIS - IT IS SAID TO BE
         AVAILABLE FOR MEDIA APPS AND OTHERS BUT SOMETIMES IT INFERS THAT IT'S MEDIA APP ONLY
@@ -154,11 +163,6 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
         return theSectionedItemTemplateBuilder.build();
     }
 
-    private void clearTemplate() {
-        sections.clear();
-        theSectionedItemTemplateBuilder.clearSections();
-    }
-
     // Player.Listener methods:
 
     @Override
@@ -179,12 +183,25 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
 
         if ( events.contains(EVENT_IS_PLAYING_CHANGED) ) {
             isPlaying = player.isPlaying();
+            errorInformation = null;
             invalidate();
         }
 
         if ( events.contains(EVENT_TIMELINE_CHANGED) )
             currentPosition = player.getCurrentPosition();
 
+        if ( events.contains(EVENT_PLAYER_ERROR) ) {
+            MediaItem mediaItem = player.getCurrentMediaItem();
+            String s = DocumentFile.fromTreeUri(getCarContext(),mediaItem.localConfiguration.uri).getName();
+            albumInformation = String.format("Track: %s",s);
+            errorInformation = getCarContext().getString(R.string.track_error);
+            new Handler(getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    invalidate();
+                }
+            });
+        }
         Log.d("PLAY",String.format("position: %d",currentPosition));
     }
 }

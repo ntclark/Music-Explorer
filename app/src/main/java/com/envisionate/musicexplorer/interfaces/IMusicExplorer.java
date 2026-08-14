@@ -1,26 +1,20 @@
 package com.envisionate.musicexplorer.interfaces;
 
 import static android.os.Looper.getMainLooper;
-
 import static com.envisionate.musicexplorer.Globals.currentPlayerListener;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
-import static com.envisionate.musicexplorer.MusicExplorer.foldersGridView;
 import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Handler;
-import android.util.Log;
-import android.view.View;
 
 import androidx.documentfile.provider.DocumentFile;
 import androidx.media3.common.Player;
 
 import com.envisionate.musicexplorer.Globals;
-import com.envisionate.musicexplorer.MusicExplorer;
 import com.envisionate.musicexplorer.Play;
 import com.envisionate.musicexplorer.Settings;
 import com.envisionate.musicexplorer.Util;
@@ -101,7 +95,7 @@ public class IMusicExplorer {
     }
 
 
-    public void onItemClicked(DocumentFile thePath, Player.Listener theListener,Runnable onReady) {
+    public void onItemClicked(DocumentFile thePath,Player.Listener theListener,Runnable onReady,Boolean fromAuto) {
 
         if ( thePath.isDirectory() ) {
             theMusicExplorer.setParentOf(properties.getCurrentFolder());
@@ -109,16 +103,16 @@ public class IMusicExplorer {
             theMusicExplorer.displayFoldersAndFiles(thePath);
             if ( ! ( null == onReady ) )
                 onReady.run();
+            if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
+                Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
             return;
         }
-
         properties.setCurrentFile(thePath);
-        playCurrentTrack(theListener,onReady);
-
+        playCurrentTrack(theListener,onReady,fromAuto);
     }
 
 
-    public void gotoParent() {
+    public void gotoParent(Boolean fromAuto) {
         if ( ! ( null == theMusicPlayer ) && theMusicPlayer.hasWindowFocus() ) {
             theMusicPlayer.stop();
             theMusicExplorer.displayFoldersAndFiles(properties.getCurrentFolder());
@@ -128,6 +122,8 @@ public class IMusicExplorer {
             properties.setCurrentFolder(df);
         }
         properties.setCurrentFile((DocumentFile)null);
+        if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
+            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
     }
 
     public void previous() {
@@ -150,7 +146,7 @@ public class IMusicExplorer {
         theMusicPlayer.stop();
     }
 
-    public void playCurrentTrack(Player.Listener theListener,Runnable onReady) {
+    public void playCurrentTrack(Player.Listener theListener,Runnable onReady,Boolean fromAuto) {
         currentPlayerListener = theListener;
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
@@ -158,6 +154,8 @@ public class IMusicExplorer {
                 theMusicExplorer.startActivity(new Intent(theMusicExplorer, Play.class));
                 if ( ! ( null == onReady ) )
                     onReady.run();
+                if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
+                    Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.PLAY_NOTIFY");
             }
         });
     }
@@ -171,7 +169,7 @@ public class IMusicExplorer {
     }
 
     public Boolean hasRoot() {
-        return ! ( null == properties.getRootFolder() );
+        return ! ( null == properties.getRootFolder() ) && ! "<click Browse>".equals(properties.getRootFolder());
     }
 
     public DocumentFile getPath(String folderName) {

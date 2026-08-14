@@ -63,11 +63,22 @@ public class CarEntitiesScreen extends Screen {
         waitingScreen = thisScreen;
 
         if ( null == theMusicExplorer ) {
-            CarText theMessage = new CarText.Builder("The app is starting up on your phone, it will be ready soon.").build();
+            CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.starting_on_phone)).build();
             new Handler(getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
-                    (new StartMusicExplorer(thisScreen)).run();
+                    (new StartMusicExplorer(thisScreen.getCarContext())).run();
+                }
+            });
+            return new MessageTemplate.Builder(theMessage).setHeader(new Header.Builder().setTitle(new CarText.Builder("Note").build()).build()).build();
+        }
+
+        if ( ! theMusicExplorerInterface.hasRoot() ) {
+            CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.setting_up_on_phone)).build();
+            new Handler(getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    (new StartMusicExplorer.SetupMusicExplorer(thisScreen.getCarContext())).run();
                 }
             });
             return new MessageTemplate.Builder(theMessage).setHeader(new Header.Builder().setTitle(new CarText.Builder("Note").build()).build()).build();
@@ -80,20 +91,15 @@ public class CarEntitiesScreen extends Screen {
         IMusicExplorer.filesAndFolders theEntities = theMusicExplorerInterface.getCurrentFilesAndFolders();
 
         if ( null == theEntities ) {
-            CarText theMessage = null;
-            if ( ! theMusicExplorerInterface.hasRoot() )
-                theMessage = new CarText.Builder("There are no files defined here, please visit the app on your phone and select the root folder").build();
-            else {
-                theMessage = new CarText.Builder("This folder does not have any tracks or child folders").build();
-                getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-                    @Override
-                    public void handleOnBackPressed() {
-                        theMusicExplorerInterface.gotoParent();
-                        thisScreen.clearTemplate();
-                        thisScreen.invalidate();
-                    }
-                });
-            }
+            CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.empty_folder)).build();
+            getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+                @Override
+                public void handleOnBackPressed() {
+                    theMusicExplorerInterface.gotoParent(true);
+                    thisScreen.clearTemplate();
+                    thisScreen.invalidate();
+                }
+            });
             return new MessageTemplate.Builder(theMessage).setHeader(new Header.Builder().setStartHeaderAction(Action.BACK).setTitle(new CarText.Builder("Note").build()).build()).build();
         }
 
@@ -124,7 +130,7 @@ public class CarEntitiesScreen extends Screen {
                     theMusicExplorerInterface.onItemClicked(nameToUri.get(df.getName()),null,() -> {
                         thisScreen.clearTemplate();
                         thisScreen.invalidate();
-                    });
+                    },true);
                 })
                 .build());
 
@@ -158,7 +164,7 @@ public class CarEntitiesScreen extends Screen {
                     theMusicExplorerInterface.onItemClicked(nameToUri.get(df.getName()),carPlayerScreen, () -> {
                         getScreenManager().push(carPlayerScreen);
                         thisScreen.clearTemplate();
-                    });
+                    },true);
                 })
                 .build());
 
@@ -176,7 +182,7 @@ public class CarEntitiesScreen extends Screen {
             getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
-                    theMusicExplorerInterface.gotoParent();
+                    theMusicExplorerInterface.gotoParent(true);
                     thisScreen.clearTemplate();
                     thisScreen.invalidate();
                 }
