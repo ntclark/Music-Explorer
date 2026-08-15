@@ -1,5 +1,6 @@
 package com.envisionate.musicexplorer;
 
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
@@ -39,12 +40,15 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
     public class ItemViewAdapter extends ArrayAdapter<itemModel> {
 
-        protected int itemTextViewId = 0;
-        protected int itemImageViewId = 0;
-        protected int itemLayoutId = 0;
+        private int itemTextViewId = 0;
+        private int itemImageViewId = 0;
+        private int itemLayoutId = 0;
 
-        public ItemViewAdapter(Context context, ArrayList<itemModel> list) {
+        public ItemViewAdapter(Context context, ArrayList<itemModel> list,int textViewId,int imageViewId,int layoutId) {
             super(context, 0, list);
+            itemTextViewId = textViewId;
+            itemImageViewId = imageViewId;
+            itemLayoutId = layoutId;
         }
 
         @Override
@@ -78,42 +82,30 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
     }
 
     public class FolderViewAdapter extends ItemViewAdapter {
-
         public FolderViewAdapter(Context context, ArrayList<itemModel> list) {
-            super(context,  list);
-            itemTextViewId = R.id.folder_text_view;
-            itemImageViewId = R.id.folder_image_view;
-            itemLayoutId = R.layout.folder_view;
+            super(context,  list,R.id.folder_text_view,R.id.folder_image_view,R.layout.folder_view);
         }
-
     }
 
     public class TrackViewAdapter extends ItemViewAdapter {
-
         public TrackViewAdapter(Context context, ArrayList<itemModel> list) {
-            super(context,  list);
-            itemTextViewId = R.id.file_text_view;
-            itemImageViewId = R.id.file_image_view;
-            itemLayoutId = R.layout.track_view;
+            super(context,  list,R.id.file_text_view,R.id.file_image_view,R.layout.track_view);
         }
-
     }
 
-    public static View homeView = null;
-    public static GridView foldersGridView = null;
-    public static GridView tracksGridView = null;
-    private static FrameLayout filesFrameLayout = null;
+    public View homeView = null;
+    public GridView foldersGridView = null;
+    public GridView tracksGridView = null;
+    private FrameLayout filesFrameLayout = null;
 
-    ArrayList<itemModel> theFolders = null;
-    ArrayList<itemModel> theTracks = null;
+    private ArrayList<itemModel> theFolderItems = new ArrayList<itemModel>();
+    private ArrayList<itemModel> theTrackItems = new ArrayList<itemModel>();
 
     private static int homeViewHeight = 0;
     private static int foldersViewWidth = 0;
     private static int foldersViewHeight = 0;
     private static int filesViewWidth = 0;
     private static int filesViewHeight = 0;
-
-    public static Properties properties = null;
 
     private ActionBar actionBar = null;
 
@@ -136,9 +128,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         actionBar = getSupportActionBar();
 
         homeView = findViewById(R.id.activity_main);
-
         foldersGridView = findViewById(R.id.folders_view_grid);
-
         filesFrameLayout = findViewById(R.id.files_view_frame);
         tracksGridView = findViewById(R.id.files_view_grid);
 
@@ -209,7 +199,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             return true;
         }
         if ( R.id.exit == item.getItemId() ) {
-            this.finishAndRemoveTask();
+            Util.broadcast(this,"com.envisionate.musicexplorer.STOP_REQUESTED");
             return true;
         }
         return false;
@@ -217,83 +207,49 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
     public void displayFoldersAndFiles(DocumentFile innerPath) {
 
-        DocumentFile theRoot = null;
+        Util.filesAndFolders theEntities = Util.getCurrentFilesAndFolders(innerPath);
 
-        if ( null == innerPath ) {
-            try {
-                theRoot = DocumentFile.fromTreeUri(this, Uri.parse(properties.getRootFolder()));
-            } catch (Exception ex) {
-                properties.resetPreferences();
-                startActivity(new Intent(this, Settings.class));
-                return;
-            }
-        }
-
-        DocumentFile [] itemArray = null;
-
-        if ( null == innerPath )
-            itemArray = theRoot.listFiles();
-        else
-            itemArray = innerPath.listFiles();
-
-        if ( 0 == itemArray.length && null == properties.getRootFolder() ) {
+        if ( null == theEntities ) {
             properties.resetPreferences();
             startActivity(new Intent(this, Settings.class));
             return;
         }
 
-        properties.setCurrentFolder(innerPath);
-
         FolderViewAdapter foldersViewAdapter = (FolderViewAdapter)foldersGridView.getAdapter();
-
         if ( ! ( null == foldersViewAdapter ) ) {
             foldersViewAdapter.clear();
             foldersViewAdapter.notifyDataSetChanged();
         }
 
-        if ( null == theFolders )
-            theFolders = new ArrayList<itemModel>();
-        else
-            theFolders.clear();
+        theFolderItems.clear();
 
-        TrackViewAdapter tracksViewAdapter = (TrackViewAdapter) tracksGridView.getAdapter();
-
+        TrackViewAdapter tracksViewAdapter = (TrackViewAdapter)tracksGridView.getAdapter();
         if ( ! ( null == tracksViewAdapter ) ) {
             tracksViewAdapter.clear();
             tracksViewAdapter.notifyDataSetChanged();
         }
 
-        if ( null == theTracks)
-            theTracks = new ArrayList<itemModel>();
+        theTrackItems.clear();
 
-        for ( DocumentFile df : itemArray ) {
+        for ( DocumentFile df : theEntities.getFolders() ) {
             String fn = folderName(df.getName());
-            if ( fn.startsWith(".") )
-                continue;
-            if ( df.isDirectory() )
-                theFolders.add(new itemModel(fn, df));
-            else
-                theTracks.add(new itemModel(fn,df));
+            theFolderItems.add(new itemModel(fn, df));
         }
 
-        theFolders.sort(new Comparator<itemModel>() {
-            @Override
-            public int compare(itemModel o1, itemModel o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
+        for ( DocumentFile df : theEntities.getFiles() )
+            theTrackItems.add(new itemModel(df.getName(),df));
 
         actionBar.setDisplayHomeAsUpEnabled(null == innerPath || uriToName(innerPath.getUri()).equals(properties.getRootFolderName()) ? false : true);
 
         if ( null == foldersViewAdapter ) {
-            foldersViewAdapter = new FolderViewAdapter(this, theFolders);
+            foldersViewAdapter = new FolderViewAdapter(this,theFolderItems);
             foldersGridView.setAdapter(foldersViewAdapter);
         }
 
         foldersViewAdapter.notifyDataSetChanged();
 
         if ( null == tracksViewAdapter ) {
-            tracksViewAdapter = new TrackViewAdapter(this, theTracks);
+            tracksViewAdapter = new TrackViewAdapter(this,theTrackItems);
             tracksGridView.setAdapter(tracksViewAdapter);
         }
 
@@ -315,21 +271,21 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         if ( 0 < foldersGridView.getChildCount() ) {
             ViewGroup folderChild = (ViewGroup)foldersGridView.getChildAt(0);
-            properties.setFolderViewWidth(folderChild.getWidth() + folderChild.getPaddingTop() + folderChild.getPaddingBottom());
-            properties.setFolderViewHeight(folderChild.getHeight() + folderChild.getPaddingLeft() + folderChild.getPaddingRight());
+            properties.setFolderViewHeight(folderChild.getHeight() + folderChild.getPaddingTop() + folderChild.getPaddingBottom());
+            properties.setFolderViewWidth(folderChild.getWidth() + folderChild.getPaddingLeft() + folderChild.getPaddingRight());
         }
 
         int columnCount = 1;
         if ( 0 < properties.getFolderViewWidth() )
             columnCount = foldersViewWidth / properties.getFolderViewWidth();
-        int rowCount = Math.max(1,theFolders.size() / columnCount);
-        if ( rowCount * columnCount < theFolders.size() )
+        int rowCount = Math.max(1, theFolderItems.size() / columnCount);
+        if ( rowCount * columnCount < theFolderItems.size() )
             rowCount += 1;
 
-        if ( theFolders.isEmpty() )
+        if ( theFolderItems.isEmpty() )
             foldersViewHeight = 0;
         else
-            foldersViewHeight = Math.min(rowCount * properties.getFolderViewHeight(),3 * homeViewHeight / 4);
+            foldersViewHeight = Math.min(rowCount * properties.getFolderViewHeight(),homeViewHeight);
 
         foldersGridView.setNumColumns(columnCount);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(foldersViewWidth,foldersViewHeight);
@@ -362,10 +318,9 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         params.topMargin = foldersViewHeight;
         filesFrameLayout.setLayoutParams(params);
 
-        findViewById(R.id.no_files_view).setVisibility(0 == theTracks.size() ? View.VISIBLE : View.INVISIBLE);
+        findViewById(R.id.no_files_view).setVisibility(0 == theTrackItems.size() ? View.VISIBLE : View.INVISIBLE);
 
     }
-
 
     public String folderName(String folderPath) {
         if ( -1 == folderPath.lastIndexOf(':') )

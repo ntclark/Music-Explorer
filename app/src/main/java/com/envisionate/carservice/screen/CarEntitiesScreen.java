@@ -1,9 +1,9 @@
 package com.envisionate.carservice.screen;
 
 import static android.os.Looper.getMainLooper;
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
-import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
 import android.os.Handler;
 
@@ -27,8 +27,10 @@ import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.envisionate.musicexplorer.Globals;
 import com.envisionate.musicexplorer.R;
 import com.envisionate.musicexplorer.StartMusicExplorer;
+import com.envisionate.musicexplorer.Util;
 import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
 
 import java.util.ArrayList;
@@ -46,6 +48,8 @@ public class CarEntitiesScreen extends Screen {
     private RowSection.Builder rowSectionBuilder = new RowSection.Builder();
     private RowSection.Builder tracksRowSectionBuilder = new RowSection.Builder();
     private List<Section<?>> sections = new ArrayList<>();
+
+    private CarIcon exitCarIcon = new CarIcon.Builder(IconCompat.createWithResource(getCarContext(), R.drawable.exit)).build();
 
     private SectionedItemTemplate.Builder theSectionedItemTemplateBuilder = new SectionedItemTemplate.Builder();
 
@@ -88,7 +92,7 @@ public class CarEntitiesScreen extends Screen {
 
         columnCount = properties.getAutoDisplayColumns();
 
-        IMusicExplorer.filesAndFolders theEntities = theMusicExplorerInterface.getCurrentFilesAndFolders();
+        Util.filesAndFolders theEntities = Util.getCurrentFilesAndFolders(null);
 
         if ( null == theEntities ) {
             CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.empty_folder)).build();
@@ -173,10 +177,23 @@ public class CarEntitiesScreen extends Screen {
         if ( 0 < theEntities.getFiles().size() )
             sections.add(tracksRowSectionBuilder.build());
 
+        Action extraAction = new Action.Builder()
+                .setIcon(exitCarIcon)
+                .setOnClickListener(() -> {
+                    new Handler(getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
+                        }
+                    });
+                })
+                .build();
+
         if ( ! theMusicExplorerInterface.isRoot() ) {
             Header theHeader = new Header.Builder()
                     .setTitle(String.format("Parent: %s",theMusicExplorer.getParentOf(properties.getCurrentFolder(),false).getName()))
                     .setStartHeaderAction(Action.BACK)
+                    .addEndHeaderAction(extraAction)
                     .build();
             theSectionedItemTemplateBuilder.setHeader(theHeader);
             getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

@@ -3,15 +3,16 @@ package com.envisionate.musicexplorer;
 import static android.view.View.INVISIBLE;
 import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
 import static androidx.media3.common.Player.EVENT_TRACKS_CHANGED;
+import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
-import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
-import android.content.Intent;
 import android.media.AudioAttributes;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -100,12 +101,8 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
         String startedByCar = theMusicExplorer.getIntent().getStringExtra("StartedByCar");
 
-        if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) ) {
-            Intent intent = new Intent("com.envisionate.musicexplorer.STARTED");
-            intent.setPackage("com.envisionate.musicexplorer");
-            intent.putExtra("IsPlaying","true");
-            getApplicationContext().sendBroadcast(intent);
-        }
+        if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
+            Util.broadcast(this,"com.envisionate.musicexplorer.STARTED_WITH_PLAY");
 
     }
 
@@ -115,9 +112,25 @@ public class Play extends AppCompatActivity implements Player.Listener {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.exit_only, menu);
+        return true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if ( item.getItemId() == android.R.id.home ) {
             theMusicExplorerInterface.gotoParent(false);
+            return true;
+        }
+        if ( item.getItemId() == R.id.exit ) {
+            if ( ! ( null == currentAutoScreen ) ) {
+                Util.broadcast(this,"com.envisionate.musicexplorer.STOP_REQUESTED");
+                return true;
+            }
+            stop();
+            theMusicExplorer.finishAndRemoveTask();
             return true;
         }
         return super.onOptionsItemSelected(item);
@@ -170,7 +183,6 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
     @Override
     public void onMediaItemTransition(MediaItem mediaItem, @Player.MediaItemTransitionReason int reason) {
-
         return;
     }
 }

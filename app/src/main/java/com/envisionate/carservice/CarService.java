@@ -1,11 +1,13 @@
 package com.envisionate.carservice;
 
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
-import static com.envisionate.musicexplorer.MusicExplorer.properties;
+import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
+import static com.envisionate.musicexplorer.Globals.currentCarService;
+import static com.envisionate.musicexplorer.Globals.currentAutoSession;
 
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.annotation.OptIn;
 import androidx.car.app.CarAppService;
@@ -26,9 +28,13 @@ public class CarService extends CarAppService {
 
     public class CarSession extends Session {
 
+        public CarSession() {
+            super();
+        }
+
         @OptIn(markerClass = ExperimentalCarApi.class)
         public Screen onCreateScreen(Intent theIntent) {
-            Globals.currentScreen = null;
+            Globals.currentAutoScreen = null;
             if ( ! ( null == theMusicExplorer ) && ! ( null == theMusicPlayer ) ) {
                 CarPlayerScreen carPlayerScreen = new CarPlayerScreen(getCarContext());
                 theMusicPlayer.addListener(carPlayerScreen);
@@ -40,29 +46,26 @@ public class CarService extends CarAppService {
                     carPlayerScreen.onMediaMetadataChanged(md);
                 }
                 theMusicPlayer.play();
-                return Globals.currentScreen = carPlayerScreen;
+                return currentAutoScreen = carPlayerScreen;
             }
-            return Globals.currentScreen = new CarEntitiesScreen(getCarContext());
+            return currentAutoScreen = new CarEntitiesScreen(getCarContext());
         }
 
     }
 
     public CarService() {
         super();
-        Log.d("MusicExplorer","The CarService constructor is called");
+        currentCarService = this;
     }
-
 
     @Override
     public @NonNull HostValidator createHostValidator() {
-        Log.d("MusicExplorer","createHostValidator called");
         return HostValidator.ALLOW_ALL_HOSTS_VALIDATOR;
     }
 
     @Override
     public Session onCreateSession(SessionInfo sessionInfo) {
-        Log.d("MusicExplorer","onCreateSession is called");
-        return new CarSession();
+        return currentAutoSession = new CarSession();
     }
 
 }

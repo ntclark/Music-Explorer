@@ -1,8 +1,10 @@
 package com.envisionate.musicexplorer;
 
 import androidx.car.app.Screen;
+import androidx.car.app.Session;
 import androidx.media3.common.Player;
 
+import com.envisionate.carservice.CarService;
 import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
 
 public final class Globals {
@@ -13,11 +15,10 @@ public final class Globals {
 
     public static Player.Listener currentPlayerListener = null;
 
-    public static Screen currentScreen = null;
+    public static Properties properties = null;
 
-    public static final int FOLDER_WIDTH = 448;
-    public static final int FOLDER_LEFT_PADDING = 16;
+    public static Screen currentAutoScreen = null;
+    public static CarService currentCarService = null;
+    public static Session currentAutoSession = null;
 
-    public static final int FOLDER_HEIGHT = 448;
-    public static final int TEXT_HEIGHT = 96;
 }

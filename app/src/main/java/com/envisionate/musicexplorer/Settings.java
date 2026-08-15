@@ -2,6 +2,7 @@ package com.envisionate.musicexplorer;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 
 import android.content.Intent;
@@ -35,7 +36,7 @@ public class Settings extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        String s = Uri.parse(theMusicExplorer.properties.getRootFolder()).getPath();
+        String s = Uri.parse(properties.getRootFolder()).getPath();
         if ( -1 < s.lastIndexOf((':') ) )
             s = s.substring(s.lastIndexOf(':') + 1);
 
@@ -44,34 +45,34 @@ public class Settings extends AppCompatActivity {
         ((Button)findViewById(R.id.root_folder_get)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, theMusicExplorer.properties.getRootFolder());
+                intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI, properties.getRootFolder());
                 startActivityForResult(intent, 9999);
             }
         });
 
-        ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",theMusicExplorer.properties.getAutoDisplayColumns()));
+        ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",properties.getAutoDisplayColumns()));
 
         ((Button)findViewById(R.id.auto_display_columns_value_plus)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                int val = theMusicExplorer.properties.getAutoDisplayColumns() + 1;
-                theMusicExplorer.properties.setAutoDisplayColumns(val);
-                ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",theMusicExplorer.properties.getAutoDisplayColumns()));
+                int val = properties.getAutoDisplayColumns() + 1;
+                properties.setAutoDisplayColumns(val);
+                ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",properties.getAutoDisplayColumns()));
             }
         });
 
         ((Button)findViewById(R.id.auto_display_columns_value_minus)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                int val = Math.max(1,theMusicExplorer.properties.getAutoDisplayColumns() - 1);
-                theMusicExplorer.properties.setAutoDisplayColumns(val);
-                ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",theMusicExplorer.properties.getAutoDisplayColumns()));
+                int val = Math.max(1,properties.getAutoDisplayColumns() - 1);
+                properties.setAutoDisplayColumns(val);
+                ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",properties.getAutoDisplayColumns()));
             }
         });
 
-        ((Switch)findViewById(R.id.resume_play_switch)).setChecked(theMusicExplorer.properties.getResumePlayOnStart());
+        ((Switch)findViewById(R.id.resume_play_switch)).setChecked(properties.getResumePlayOnStart());
 
         ((Switch)findViewById(R.id.resume_play_switch)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                theMusicExplorer.properties.setResumePlayOnStart(((Switch)v).isChecked());
+                properties.setResumePlayOnStart(((Switch)v).isChecked());
             }
         });
 /*
@@ -101,9 +102,9 @@ public class Settings extends AppCompatActivity {
         switch ( requestCode ) {
             case 9999:
                 Uri uri = data.getData();
-                theMusicExplorer.properties.setRootFolder(uri);
+                properties.setRootFolder(uri);
                 getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                String s = Uri.parse(theMusicExplorer.properties.getRootFolder()).getPath();
+                String s = Uri.parse(properties.getRootFolder()).getPath();
                 if ( -1 < s.lastIndexOf((':') ) )
                     s = s.substring(s.lastIndexOf(':') + 1);
                 ((TextView)findViewById(R.id.root_folder)).setText(s);
@@ -117,7 +118,7 @@ public class Settings extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if ( item.getItemId() == android.R.id.home ) {
-            if ( null == theMusicExplorer.properties.getRootFolder() || "<click Browse>".equals(theMusicExplorer.properties.getRootFolder()) ) {
+            if ( null == properties.getRootFolder() || "<click Browse>".equals(properties.getRootFolder()) ) {
                 ((TextView)findViewById(R.id.settings_set_root_warning)).setVisibility(VISIBLE);
                 return false;
             }

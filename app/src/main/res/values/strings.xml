@@ -11,6 +11,7 @@
     <string name="artist">Artist</string>
     <string name="player_view_folder">Folder:</string>
     <string name="player_view_artist">Artist</string>
+    <string name="currently_playing">Currently playing</string>
     <string name="auto_display_columns_label">Select the number of columns to display on the car screen:</string>
     <string name="auto_display_folder_icons">Should the folder items display using folder icons?"</string>
     <string name="auto_display_folder_icons_more">Otherwise, just the labels are displayed"</string>

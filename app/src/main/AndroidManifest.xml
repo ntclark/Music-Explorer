@@ -3,7 +3,6 @@
     package="com.envisionate.musicexplorer">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <meta-data
         android:name="com.google.android.gms.car.application"
@@ -66,15 +65,18 @@
         </service>
 
         <receiver
-            android:name="com.envisionate.musicexplorer.StartMusicExplorerReceiver"
+            android:name="com.envisionate.musicexplorer.MusicExplorerReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.envisionate.musicexplorer.START" />
                 <action android:name="com.envisionate.musicexplorer.STARTED" />
+                <action android:name="com.envisionate.musicexplorer.STARTED_WITH_PLAY" />
                 <action android:name="com.envisionate.musicexplorer.SETUP_NOTIFY"/>
                 <action android:name="com.envisionate.musicexplorer.SETUP_DONE"/>
                 <action android:name="com.envisionate.musicexplorer.PLAY_NOTIFY"/>
                 <action android:name="com.envisionate.musicexplorer.NAVIGATION_NOTIFY"/>
+                <action android:name="com.envisionate.musicexplorer.STOP_REQUESTED"/>
+                <action android:name="com.envisionate.musicexplorer.CAR_PLAY_STOPPED"/>
             </intent-filter>
         </receiver>
 

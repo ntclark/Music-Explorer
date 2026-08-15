@@ -1,10 +1,11 @@
 package com.envisionate.musicexplorer.interfaces;
 
 import static android.os.Looper.getMainLooper;
+import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
 import static com.envisionate.musicexplorer.Globals.currentPlayerListener;
+import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
-import static com.envisionate.musicexplorer.MusicExplorer.properties;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -24,78 +25,9 @@ import java.util.Comparator;
 
 public class IMusicExplorer {
 
-    public class filesAndFolders {
-
-        public filesAndFolders(ArrayList<DocumentFile> tf, ArrayList<DocumentFile> tfiles) {
-            theFolders = tf;
-            theFiles = tfiles;
-        }
-
-        private ArrayList<DocumentFile> theFolders;
-        private ArrayList<DocumentFile> theFiles;
-
-        public ArrayList<DocumentFile> getFolders() {
-            return theFolders;
-        }
-
-        public ArrayList<DocumentFile> getFiles() {
-            return theFiles;
-        }
-
-    }
-
-    public filesAndFolders getCurrentFilesAndFolders() {
-
-        DocumentFile theRoot = null;
-
-        if ( null == properties.getCurrentFolder() ) {
-            try {
-                theRoot = DocumentFile.fromTreeUri(theMusicExplorer, Uri.parse(properties.getRootFolder()));
-            } catch ( Exception ex ) {
-                return null;
-            }
-        }
-
-        DocumentFile [] itemArray = null;
-
-        if ( null == properties.getCurrentFolder() )
-            itemArray = theRoot.listFiles();
-        else
-            itemArray = properties.getCurrentFolder().listFiles();
-
-        if ( 0 == itemArray.length ) {
-            if ( ! ( null == properties.getCurrentFolder() ) )
-                return null;
-            properties.resetPreferences();
-            theMusicExplorer.startActivity(new Intent(theMusicExplorer, Settings.class));
-            return null;
-        }
-
-        ArrayList<DocumentFile> folders = new ArrayList<DocumentFile>();
-        ArrayList<DocumentFile> files = new ArrayList<DocumentFile>();
-
-        for ( DocumentFile df : itemArray ) {
-            String fn = theMusicExplorer.folderName(df.getName());
-            if ( fn.startsWith(".") )
-                continue;
-            if ( df.isDirectory() )
-                folders.add(df);
-            else
-                files.add(df);
-        }
-
-        folders.sort(new Comparator<DocumentFile>() {
-            @Override
-            public int compare(DocumentFile o1, DocumentFile o2) {
-                return o1.getName().compareToIgnoreCase(o2.getName());
-            }
-        });
-
-        return new filesAndFolders(folders,files);
-    }
 
 
-    public void onItemClicked(DocumentFile thePath,Player.Listener theListener,Runnable onReady,Boolean fromAuto) {
+     public void onItemClicked(DocumentFile thePath,Player.Listener theListener,Runnable onReady,Boolean fromAuto) {
 
         if ( thePath.isDirectory() ) {
             theMusicExplorer.setParentOf(properties.getCurrentFolder());
@@ -103,7 +35,7 @@ public class IMusicExplorer {
             theMusicExplorer.displayFoldersAndFiles(thePath);
             if ( ! ( null == onReady ) )
                 onReady.run();
-            if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
+            if ( ! fromAuto && ! ( null == currentAutoScreen) )
                 Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
             return;
         }
@@ -122,7 +54,7 @@ public class IMusicExplorer {
             properties.setCurrentFolder(df);
         }
         properties.setCurrentFile((DocumentFile)null);
-        if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
+        if ( ! fromAuto && ! ( null == currentAutoScreen) )
             Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
     }
 
@@ -154,8 +86,14 @@ public class IMusicExplorer {
                 theMusicExplorer.startActivity(new Intent(theMusicExplorer, Play.class));
                 if ( ! ( null == onReady ) )
                     onReady.run();
-                if ( ! fromAuto && ! ( null == Globals.currentScreen ) )
-                    Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.PLAY_NOTIFY");
+                if ( ! fromAuto && ! ( null == currentAutoScreen) ) {
+                    new Handler(getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.PLAY_NOTIFY");
+                        }
+                    });
+                }
             }
         });
     }
