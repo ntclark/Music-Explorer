@@ -2,11 +2,15 @@ package com.envisionate.musicexplorer;
 
 import androidx.car.app.Screen;
 import androidx.car.app.Session;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.media3.common.Player;
 
 import com.envisionate.carservice.CarService;
+import com.envisionate.carservice.screen.CarEntitiesScreen;
+import com.envisionate.carservice.screen.CarPlayerScreen;
 import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
 
+@ExperimentalCarApi
 public final class Globals {
 
     public static MusicExplorer theMusicExplorer = null;
@@ -18,7 +22,15 @@ public final class Globals {
     public static Properties properties = null;
 
     public static Screen currentAutoScreen = null;
+    public static CarEntitiesScreen currentAutoEntitiesScreen = null;
+    public static CarPlayerScreen currentAutoPlayerScreen = null;
+
     public static CarService currentCarService = null;
     public static Session currentAutoSession = null;
+
+    public static Util theUtilities = new Util();
+
+/*    public static ReentrantLock theMutex = new ReentrantLock();
+    public static Condition theMutexCondition = theMutex.newCondition();*/
 
 }

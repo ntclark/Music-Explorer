@@ -104,6 +104,10 @@ public class Play extends AppCompatActivity implements Player.Listener {
         if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
             Util.broadcast(this,"com.envisionate.musicexplorer.STARTED_WITH_PLAY");
 
+        String clickIsFromAuto = getIntent().getStringExtra("ClickFromAuto");
+
+        if ( ! ( null == clickIsFromAuto ) && "false".equals(clickIsFromAuto) )
+            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.PLAY_NOTIFY");
     }
 
     @Override
@@ -121,7 +125,7 @@ public class Play extends AppCompatActivity implements Player.Listener {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if ( item.getItemId() == android.R.id.home ) {
-            theMusicExplorerInterface.gotoParent(false);
+            theMusicExplorerInterface.gotoParent();
             return true;
         }
         if ( item.getItemId() == R.id.exit ) {
@@ -159,6 +163,10 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
     public void addListener(Player.Listener obj) {
         player.addListener(obj);
+    }
+
+    public Boolean isPlaying() {
+        return player.isPlaying();
     }
 
     @Override

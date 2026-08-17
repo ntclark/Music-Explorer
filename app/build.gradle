@@ -3,6 +3,9 @@ plugins {
 }
 
 android {
+    lintOptions {
+       disable 'UnsafeOptInUsageError'
+    }
     namespace 'com.envisionate.musicexplorer'
     compileSdk {
         version = release(36) {
@@ -14,8 +17,8 @@ android {
         applicationId "com.envisionate.musicexplorer"
         minSdk 36
         targetSdk 36
-        versionCode 15
-        versionName "15.0"
+        versionCode 16
+        versionName "16.0"
     }
 
     buildTypes {

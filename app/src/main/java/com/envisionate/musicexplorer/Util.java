@@ -1,5 +1,8 @@
 package com.envisionate.musicexplorer;
 
+import static android.os.Looper.getMainLooper;
+import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
+import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 
@@ -10,6 +13,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Handler;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -19,41 +23,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
+import com.envisionate.carservice.screen.CarEntitiesScreen;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 public class Util {
 
-    private Util() {}
+    public Util() {}
 
-    public static class filesAndFolders {
-
-        private static final filesAndFolders instance = new filesAndFolders();
-
-        private static ArrayList<DocumentFile> theFolders;
-        private static ArrayList<DocumentFile> theFiles;
-
-        public ArrayList<DocumentFile> getFolders() {
-            return theFolders;
-        }
-
-        public ArrayList<DocumentFile> getFiles() {
-            return theFiles;
-        }
-
-    }
-
-    public static filesAndFolders getCurrentFilesAndFolders(DocumentFile overrideCurrent) {
+    public filesAndFolders getCurrentFilesAndFolders(DocumentFile overrideCurrent) {
 
         DocumentFile theRoot = null;
 
         if ( ! ( null == overrideCurrent ) )
             properties.setCurrentFolder(overrideCurrent);
-
-        filesAndFolders.theFolders = null;
-        filesAndFolders.theFiles = null;
 
         if ( null == properties.getCurrentFolder() ) {
             try {
@@ -70,35 +54,29 @@ public class Util {
         else
             entityArray = properties.getCurrentFolder().listFiles();
 
-        if ( 0 == entityArray.length ) {
-            if ( ! ( null == properties.getCurrentFolder() ) )
-                return null;
-            properties.resetPreferences();
-            theMusicExplorer.startActivity(new Intent(theMusicExplorer, Settings.class));
-            return null;
-        }
+        filesAndFolders theFilesAndFolders = new filesAndFolders(new ArrayList<DocumentFile>(),new ArrayList<DocumentFile>());
 
-        filesAndFolders.theFolders = new ArrayList<DocumentFile>();
-        filesAndFolders.theFiles = new ArrayList<DocumentFile>();
+        if ( 0 == entityArray.length )
+            return theFilesAndFolders;
 
         for ( DocumentFile df : entityArray ) {
             String fn = theMusicExplorer.folderName(df.getName());
             if ( fn.startsWith(".") )
                 continue;
             if ( df.isDirectory() )
-                filesAndFolders.theFolders.add(df);
+                theFilesAndFolders.getFolders().add(df);
             else
-                filesAndFolders.theFiles.add(df);
+                theFilesAndFolders.getFiles().add(df);
         }
 
-        filesAndFolders.theFolders.sort(new Comparator<DocumentFile>() {
+        theFilesAndFolders.getFolders().sort(new Comparator<DocumentFile>() {
             @Override
             public int compare(DocumentFile o1, DocumentFile o2) {
                 return o1.getName().compareToIgnoreCase(o2.getName());
             }
         });
 
-        return filesAndFolders.instance;
+        return theFilesAndFolders;
     }
 
     public static Bitmap getFolderImage(AppCompatActivity theActivity, DocumentFile theFolder) {
@@ -194,8 +172,23 @@ public class Util {
     }
 
     public static void broadcast(Activity theActivity, String theMessage) {
+        new Handler(getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Intent intent = new Intent(theMessage);
+                intent.setPackage("com.envisionate.musicexplorer");
+                theActivity.getApplicationContext().sendBroadcast(intent);
+            }
+        });
+    }
+
+    public static void broadcastFast(Activity theActivity, String theMessage) {
         Intent intent = new Intent(theMessage);
         intent.setPackage("com.envisionate.musicexplorer");
         theActivity.getApplicationContext().sendBroadcast(intent);
+    }
+
+    public static void doLater(Runnable theRunnable,long delayMS) {
+        new Handler(getMainLooper()).postDelayed(theRunnable,500);
     }
 }

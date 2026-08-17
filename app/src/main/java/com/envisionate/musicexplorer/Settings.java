@@ -3,7 +3,6 @@ package com.envisionate.musicexplorer;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.envisionate.musicexplorer.Globals.properties;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 
 import android.content.Intent;
 import android.net.Uri;

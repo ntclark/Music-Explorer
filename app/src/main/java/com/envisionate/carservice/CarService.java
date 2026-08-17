@@ -1,11 +1,11 @@
 package com.envisionate.carservice;
 
+import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
+import static com.envisionate.musicexplorer.Globals.currentAutoSession;
+import static com.envisionate.musicexplorer.Globals.currentCarService;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
-import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
-import static com.envisionate.musicexplorer.Globals.currentCarService;
-import static com.envisionate.musicexplorer.Globals.currentAutoSession;
 
 import android.content.Intent;
 
@@ -28,17 +28,13 @@ public class CarService extends CarAppService {
 
     public class CarSession extends Session {
 
-        public CarSession() {
-            super();
-        }
-
         @OptIn(markerClass = ExperimentalCarApi.class)
         public Screen onCreateScreen(Intent theIntent) {
             Globals.currentAutoScreen = null;
             if ( ! ( null == theMusicExplorer ) && ! ( null == theMusicPlayer ) ) {
                 CarPlayerScreen carPlayerScreen = new CarPlayerScreen(getCarContext());
                 theMusicPlayer.addListener(carPlayerScreen);
-                if ( ! ( null == properties.getCurrentFolder() && ! ( null == properties.getCurrentFile() ) ) ) {
+                if ( ! ( null == properties.getCurrentFolder() ) && ! ( null == properties.getCurrentFile() ) ) {
                     MediaMetadata md = new MediaMetadata.Builder()
                             .setAlbumTitle(properties.getCurrentFolder().getName())
                             .setTitle(properties.getCurrentFile().getName())

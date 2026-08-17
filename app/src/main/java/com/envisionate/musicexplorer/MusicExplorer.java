@@ -1,9 +1,11 @@
 package com.envisionate.musicexplorer;
 
+import static com.envisionate.musicexplorer.Globals.currentCarService;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
 import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
+import static com.envisionate.musicexplorer.Globals.theUtilities;
 
 import android.content.Context;
 import android.content.Intent;
@@ -34,7 +36,6 @@ import com.envisionate.carservice.screen.CarEntitiesScreen;
 import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 
 public class MusicExplorer extends AppCompatActivity implements Player.Listener {
 
@@ -65,7 +66,11 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
             TextView textView = itemView.findViewById(itemTextViewId);
 
-            textView.setText(model.getName());
+            String s = model.getName();
+            if ( -1 < s.lastIndexOf('.') )
+                s = s.substring(0,s.lastIndexOf('.'));
+
+            textView.setText(s);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -106,6 +111,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
     private static int foldersViewHeight = 0;
     private static int filesViewWidth = 0;
     private static int filesViewHeight = 0;
+    private static Boolean isViewLayedOut = false;
 
     private ActionBar actionBar = null;
 
@@ -123,11 +129,11 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.musicexplorer_main);
 
         actionBar = getSupportActionBar();
 
-        homeView = findViewById(R.id.activity_main);
+        homeView = findViewById(R.id.musicexplorer_main);
         foldersGridView = findViewById(R.id.folders_view_grid);
         filesFrameLayout = findViewById(R.id.files_view_frame);
         tracksGridView = findViewById(R.id.files_view_grid);
@@ -195,7 +201,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             return true;
         }
         if ( item.getItemId() == android.R.id.home ) {
-            theMusicExplorerInterface.gotoParent(false);
+            theMusicExplorerInterface.gotoParent();
             return true;
         }
         if ( R.id.exit == item.getItemId() ) {
@@ -207,7 +213,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
     public void displayFoldersAndFiles(DocumentFile innerPath) {
 
-        Util.filesAndFolders theEntities = Util.getCurrentFilesAndFolders(innerPath);
+        filesAndFolders theEntities = theUtilities.getCurrentFilesAndFolders(innerPath);
 
         if ( null == theEntities ) {
             properties.resetPreferences();
@@ -255,17 +261,19 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         tracksViewAdapter.notifyDataSetChanged();
 
-        foldersGridView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+        isViewLayedOut = false;
+
+        homeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onLayoutChange(View v, int left, int top, int right, int bottom,
-                                       int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                layoutFolders();
+            public void onGlobalLayout() {
+                homeView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                layoutFoldersAndFiles();
             }
         });
 
     }
 
-    public void layoutFolders() {
+    public void layoutFoldersAndFiles() {
 
         foldersViewWidth = foldersGridView.getWidth();
 
@@ -291,17 +299,16 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(foldersViewWidth,foldersViewHeight);
         foldersGridView.setLayoutParams(params);
 
-        filesFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                layoutFiles(this);
-            }
-        });
+        layoutFiles();
+
+        if ( ! isViewLayedOut )
+            Util.broadcast(this,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
+
+        isViewLayedOut = true;
+
     }
 
-    private void layoutFiles(ViewTreeObserver.OnGlobalLayoutListener listener) {
-
-        filesFrameLayout.getViewTreeObserver().removeOnGlobalLayoutListener(listener);
+    private void layoutFiles() {
 
         filesViewWidth = filesFrameLayout.getWidth();
 
@@ -328,6 +335,22 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         return folderPath.substring(folderPath.lastIndexOf(':') + 1);
     }
 
+    public filesAndFolders getDisplayedFilesAndFolder() {
+
+        if ( theFolderItems.isEmpty() && theTrackItems.isEmpty() )
+            return null;
+
+        ArrayList<DocumentFile> folders = new ArrayList<DocumentFile>();
+        ArrayList<DocumentFile> files = new ArrayList<DocumentFile>();
+
+        for ( itemModel im : theFolderItems )
+            folders.add(im.getDocumentFile());
+
+        for ( itemModel im : theTrackItems )
+            files.add(im.getDocumentFile());
+
+        return new filesAndFolders(folders,files);
+    }
 
     public String uriToName(Uri theUri) {
         if ( null == theUri )
@@ -337,7 +360,6 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             return pathNames[pathNames.length - 1];
         return null;
     }
-
 
     public void setParentOf(DocumentFile aFolder) {
         if ( null == aFolder )

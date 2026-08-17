@@ -1,11 +1,16 @@
 package com.envisionate.carservice.screen;
 
 import static android.os.Looper.getMainLooper;
+
+import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
+import static com.envisionate.musicexplorer.Globals.currentAutoPlayerScreen;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
+import static com.envisionate.musicexplorer.Globals.theUtilities;
 
 import android.os.Handler;
+import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.OptIn;
@@ -27,11 +32,10 @@ import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.envisionate.musicexplorer.Globals;
 import com.envisionate.musicexplorer.R;
 import com.envisionate.musicexplorer.StartMusicExplorer;
 import com.envisionate.musicexplorer.Util;
-import com.envisionate.musicexplorer.interfaces.IMusicExplorer;
+import com.envisionate.musicexplorer.filesAndFolders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +59,8 @@ public class CarEntitiesScreen extends Screen {
 
     TreeMap<String,DocumentFile> nameToUri = new TreeMap<String,DocumentFile>();
 
+    private Boolean navBusy = false;
+
     public CarEntitiesScreen(CarContext carContext) {
         super(carContext);
     }
@@ -65,6 +71,7 @@ public class CarEntitiesScreen extends Screen {
 
         thisScreen = this;
         waitingScreen = thisScreen;
+        navBusy = false;
 
         if ( null == theMusicExplorer ) {
             CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.starting_on_phone)).build();
@@ -92,20 +99,23 @@ public class CarEntitiesScreen extends Screen {
 
         columnCount = properties.getAutoDisplayColumns();
 
-        Util.filesAndFolders theEntities = Util.getCurrentFilesAndFolders(null);
+        filesAndFolders theEntities = theMusicExplorer.getDisplayedFilesAndFolder();
 
         if ( null == theEntities ) {
             CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.empty_folder)).build();
             getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
-                    theMusicExplorerInterface.gotoParent(true);
-                    thisScreen.clearTemplate();
-                    thisScreen.invalidate();
+                    if ( navBusy )
+                        return;
+                    theMusicExplorerInterface.gotoParent();
+                    navBusy = false;
                 }
             });
             return new MessageTemplate.Builder(theMessage).setHeader(new Header.Builder().setStartHeaderAction(Action.BACK).setTitle(new CarText.Builder("Note").build()).build()).build();
         }
+
+        Log.d("MusicExplorer","CarEntitiesScreen is called");
 
         CarIcon trackIcon = new CarIcon.Builder(IconCompat.createWithResource(getCarContext(), R.drawable.track)).build();
 
@@ -131,9 +141,12 @@ public class CarEntitiesScreen extends Screen {
                 .setTitle(" ")
                 .setImage(carIconFromFolder(df),GridItem.IMAGE_TYPE_LARGE)
                 .setOnClickListener( () -> {
+                    if ( navBusy )
+                        return;
+                    navBusy = true;
                     theMusicExplorerInterface.onItemClicked(nameToUri.get(df.getName()),null,() -> {
-                        thisScreen.clearTemplate();
-                        thisScreen.invalidate();
+                        //thisScreen.clearTemplate();
+                        //thisScreen.invalidate();
                     },true);
                 })
                 .build());
@@ -180,12 +193,7 @@ public class CarEntitiesScreen extends Screen {
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                    new Handler(getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
-                        }
-                    });
+                        Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
                 })
                 .build();
 
@@ -199,13 +207,17 @@ public class CarEntitiesScreen extends Screen {
             getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
-                    theMusicExplorerInterface.gotoParent(true);
-                    thisScreen.clearTemplate();
-                    thisScreen.invalidate();
+                    if ( navBusy )
+                        return;
+                    navBusy = true;
+                    theMusicExplorerInterface.gotoParent();
                 }
             });
         } else
             theSectionedItemTemplateBuilder.setHeader(null);
+
+        currentAutoEntitiesScreen = this;
+        currentAutoPlayerScreen = null;
 
         return theSectionedItemTemplateBuilder.setSections(sections).build();
     }

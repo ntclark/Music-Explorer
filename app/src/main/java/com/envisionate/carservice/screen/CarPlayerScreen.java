@@ -4,11 +4,14 @@ import static android.os.Looper.getMainLooper;
 import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
 import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
 import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
+
 import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
+import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
+import static com.envisionate.musicexplorer.Globals.currentAutoPlayerScreen;
+
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
-import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
 
 import android.os.Handler;
 import android.util.Log;
@@ -18,17 +21,14 @@ import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridSection;
-import androidx.car.app.model.GridTemplate;
 import androidx.car.app.model.Header;
 import androidx.car.app.model.OnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.RowSection;
 import androidx.car.app.model.Section;
-import androidx.car.app.model.SectionHeader;
 import androidx.car.app.model.SectionedItemTemplate;
 import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
@@ -37,7 +37,7 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 
-import com.envisionate.carservice.CarService;
+import com.envisionate.musicexplorer.Globals;
 import com.envisionate.musicexplorer.R;
 import com.envisionate.musicexplorer.Util;
 
@@ -152,12 +152,7 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                    new Handler(getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
-                        }
-                    });
+                     Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
                 })
                 .build();
 
@@ -175,21 +170,19 @@ public class CarPlayerScreen extends Screen implements Player.Listener {
                 if ( 1 < getScreenManager().getStackSize() )
                     getScreenManager().pop();
                 else {
-                    theMusicExplorerInterface.gotoParent(true);
+                    theMusicExplorerInterface.gotoParent();
                     currentAutoScreen = new CarEntitiesScreen(getScreenManager().getTop().getCarContext());
                     getScreenManager().push(currentAutoScreen);
-                    new Handler(getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
-                        }
-                    });
+                    //Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
                 }
                 theMusicExplorerInterface.stopPlay();
             }
         });
 
         theSectionedItemTemplateBuilder.setSections(sections);
+
+        currentAutoEntitiesScreen = null;
+        currentAutoPlayerScreen = this;
 
         return theSectionedItemTemplateBuilder.build();
     }
