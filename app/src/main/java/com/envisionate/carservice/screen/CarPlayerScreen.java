@@ -1,31 +1,21 @@
 package com.envisionate.carservice.screen;
 
 import static android.os.Looper.getMainLooper;
-import static androidx.media3.common.Player.EVENT_IS_PLAYING_CHANGED;
 import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
-import static androidx.media3.common.Player.EVENT_TIMELINE_CHANGED;
-
-import static com.envisionate.musicexplorer.Globals.PLAYER_TRACK_QUERY_DELAY;
-import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
-import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
-import static com.envisionate.musicexplorer.Globals.currentAutoPlayerScreen;
-
-import static com.envisionate.musicexplorer.Globals.properties;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
-import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
+import static com.envisionate.musicinfolders.Globals.currentAutoEntitiesScreen;
+import static com.envisionate.musicinfolders.Globals.currentAutoPlayerScreen;
+import static com.envisionate.musicinfolders.Globals.properties;
+import static com.envisionate.musicinfolders.Globals.theMusicExplorer;
+import static com.envisionate.musicinfolders.Globals.theMusicExplorerInterface;
 
 import android.os.Handler;
-import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.model.Action;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
-import androidx.car.app.model.CarProgressBar;
 import androidx.car.app.model.GridItem;
 import androidx.car.app.model.GridSection;
 import androidx.car.app.model.Header;
@@ -41,10 +31,9 @@ import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 
-import com.envisionate.musicexplorer.Globals;
-import com.envisionate.musicexplorer.R;
-import com.envisionate.musicexplorer.Util;
-import com.envisionate.musicexplorer.interfaces.IMusicExplorerPlay;
+import com.envisionate.musicinfolders.R;
+import com.envisionate.musicinfolders.Util;
+import com.envisionate.musicinfolders.interfaces.IMusicExplorerPlay;
 
 import org.jspecify.annotations.NonNull;
 
@@ -165,7 +154,7 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                     Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
+                     Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED");
                 })
                 .build();
 
@@ -181,7 +170,6 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
             @Override
             public void handleOnBackPressed() {
                 theMusicExplorerInterface.gotoParent();
-                theMusicExplorerInterface.stopPlay();
             }
         });
 

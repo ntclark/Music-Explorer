@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.envisionate.musicexplorer">
+    package="com.envisionate.musicinfolders">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
@@ -25,7 +25,7 @@
             android:value="8"/>
 
         <activity
-            android:name="com.envisionate.musicexplorer.MusicExplorer"
+            android:name="com.envisionate.musicinfolders.MusicExplorer"
             android:exported="true"
             android:launchMode="singleTop">
             <intent-filter>
@@ -35,7 +35,7 @@
         </activity>
 
         <activity
-            android:name="com.envisionate.musicexplorer.Settings"
+            android:name="com.envisionate.musicinfolders.Settings"
             android:exported="false"
             android:launchMode="singleTop"
             android:label="@string/action_settings">
@@ -45,7 +45,7 @@
         </activity>
 
         <activity
-            android:name="com.envisionate.musicexplorer.Play"
+            android:name="com.envisionate.musicinfolders.Play"
             android:exported="true"
             android:launchMode="singleTop"
             android:label="@string/action_play">
@@ -65,18 +65,19 @@
         </service>
 
         <receiver
-            android:name="com.envisionate.musicexplorer.BroadcastReceiver"
+            android:name="com.envisionate.musicinfolders.BroadcastReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.envisionate.musicexplorer.START" />
-                <action android:name="com.envisionate.musicexplorer.STARTED" />
-                <action android:name="com.envisionate.musicexplorer.STARTED_WITH_PLAY" />
-                <action android:name="com.envisionate.musicexplorer.SETUP_NOTIFY"/>
-                <action android:name="com.envisionate.musicexplorer.SETUP_DONE"/>
-                <action android:name="com.envisionate.musicexplorer.PLAY_NOTIFY"/>
-                <action android:name="com.envisionate.musicexplorer.NAVIGATION_NOTIFY"/>
-                <action android:name="com.envisionate.musicexplorer.STOP_REQUESTED"/>
-                <action android:name="com.envisionate.musicexplorer.CAR_PLAY_STOPPED"/>
+                <action android:name="com.envisionate.musicinfolders.START" />
+                <action android:name="com.envisionate.musicinfolders.STARTED" />
+                <action android:name="com.envisionate.musicinfolders.STARTED_WITH_PLAY" />
+                <action android:name="com.envisionate.musicinfolders.SETUP_NOTIFY"/>
+                <action android:name="com.envisionate.musicinfolders.SETUP_DONE"/>
+                <action android:name="com.envisionate.musicinfolders.PLAY_NOTIFY"/>
+                <action android:name="com.envisionate.musicinfolders.PLAY_NOTIFY_UPDATE_TRACK_INFO"/>
+                <action android:name="com.envisionate.musicinfolders.NAVIGATION_NOTIFY"/>
+                <action android:name="com.envisionate.musicinfolders.STOP_REQUESTED"/>
+                <action android:name="com.envisionate.musicinfolders.CAR_PLAY_STOPPED"/>
             </intent-filter>
         </receiver>
 

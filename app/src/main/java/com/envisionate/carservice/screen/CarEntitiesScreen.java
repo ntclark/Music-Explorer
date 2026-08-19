@@ -1,14 +1,13 @@
 package com.envisionate.carservice.screen;
 
-import static com.envisionate.musicexplorer.Globals.ANDROID_AUTO_DELAY;
-import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
-import static com.envisionate.musicexplorer.Globals.currentAutoPlayerScreen;
-import static com.envisionate.musicexplorer.Globals.properties;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
-import static com.envisionate.musicexplorer.Globals.theMusicExplorerInterface;
+import static com.envisionate.musicinfolders.Globals.ANDROID_AUTO_DELAY;
+import static com.envisionate.musicinfolders.Globals.currentAutoEntitiesScreen;
+import static com.envisionate.musicinfolders.Globals.currentAutoPlayerScreen;
+import static com.envisionate.musicinfolders.Globals.properties;
+import static com.envisionate.musicinfolders.Globals.theMusicExplorer;
+import static com.envisionate.musicinfolders.Globals.theMusicExplorerInterface;
 
 import android.content.Intent;
-import android.util.Log;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.OptIn;
@@ -30,9 +29,9 @@ import androidx.car.app.model.Template;
 import androidx.core.graphics.drawable.IconCompat;
 import androidx.documentfile.provider.DocumentFile;
 
-import com.envisionate.musicexplorer.R;
-import com.envisionate.musicexplorer.Util;
-import com.envisionate.musicexplorer.filesAndFolders;
+import com.envisionate.musicinfolders.R;
+import com.envisionate.musicinfolders.Util;
+import com.envisionate.musicinfolders.filesAndFolders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -74,8 +73,8 @@ public class CarEntitiesScreen extends Screen {
             Util.doLater(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent("com.envisionate.musicexplorer.START");
-                    intent.setPackage("com.envisionate.musicexplorer");
+                    Intent intent = new Intent("com.envisionate.musicinfolders.START");
+                    intent.setPackage("com.envisionate.musicinfolders");
                     intent.putExtra("StartedByCar","true");
                     thisScreen.getCarContext().sendBroadcast(intent);
                 }
@@ -89,8 +88,8 @@ public class CarEntitiesScreen extends Screen {
            Util.doLater(new Runnable() {
                 @Override
                 public void run() {
-                    Intent intent = new Intent("com.envisionate.musicexplorer.SETUP_NOTIFY");
-                    intent.setPackage("com.envisionate.musicexplorer");
+                    Intent intent = new Intent("com.envisionate.musicinfolders.SETUP_NOTIFY");
+                    intent.setPackage("com.envisionate.musicinfolders");
                     thisScreen.getCarContext().sendBroadcast(intent);
                 }
             },ANDROID_AUTO_DELAY);
@@ -197,7 +196,7 @@ public class CarEntitiesScreen extends Screen {
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                        Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.STOP_REQUESTED");
+                        Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED");
                 })
                 .build();
 
@@ -274,6 +273,10 @@ public class CarEntitiesScreen extends Screen {
 
     public static CarEntitiesScreen getWaitingScreen() {
         return waitingScreen;
+    }
+
+    public static void clearWaitingScreen() {
+        waitingScreen = null;
     }
 
     public void clearTemplate() {
