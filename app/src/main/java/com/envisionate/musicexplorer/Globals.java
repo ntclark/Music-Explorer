@@ -21,6 +21,10 @@ public final class Globals {
 
     public static Properties properties = null;
 
+    public static final int ANDROID_AUTO_DELAY = 250;
+    public static final int PLAYER_TRACK_QUERY_DELAY = 1000;
+    public static final int ANDROID_AUTO_ICON_SIDE = 228;
+
     public static Screen currentAutoScreen = null;
     public static CarEntitiesScreen currentAutoEntitiesScreen = null;
     public static CarPlayerScreen currentAutoPlayerScreen = null;
@@ -29,8 +33,5 @@ public final class Globals {
     public static Session currentAutoSession = null;
 
     public static Util theUtilities = new Util();
-
-/*    public static ReentrantLock theMutex = new ReentrantLock();
-    public static Condition theMutexCondition = theMutex.newCondition();*/
 
 }

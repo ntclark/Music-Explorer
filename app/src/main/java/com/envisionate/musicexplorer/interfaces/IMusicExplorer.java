@@ -1,7 +1,7 @@
 package com.envisionate.musicexplorer.interfaces;
 
 import static android.os.Looper.getMainLooper;
-import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
+
 import static com.envisionate.musicexplorer.Globals.currentPlayerListener;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;

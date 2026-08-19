@@ -1,6 +1,7 @@
 package com.envisionate.musicexplorer;
 
 import static android.os.Looper.getMainLooper;
+import static com.envisionate.musicexplorer.Globals.ANDROID_AUTO_ICON_SIDE;
 import static com.envisionate.musicexplorer.Globals.currentAutoEntitiesScreen;
 import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
 import static com.envisionate.musicexplorer.Globals.properties;
@@ -11,6 +12,8 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Handler;
@@ -77,6 +80,31 @@ public class Util {
         });
 
         return theFilesAndFolders;
+    }
+
+    public static Bitmap getProgressCircle(long currentPoint,long endPoint) {
+
+        Bitmap bitmap = Bitmap.createBitmap(ANDROID_AUTO_ICON_SIDE,ANDROID_AUTO_ICON_SIDE, Bitmap.Config.ARGB_8888);
+
+        bitmap.eraseColor(android.graphics.Color.TRANSPARENT);
+
+        Canvas canvas = new Canvas(bitmap);
+
+        Paint paint = new Paint();
+        paint.setColor(Color.WHITE);
+        paint.setAntiAlias(true);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(10.0f);
+
+        RectF ovalBounds = new RectF(0f, 0f, ANDROID_AUTO_ICON_SIDE, ANDROID_AUTO_ICON_SIDE);
+
+        float startAngle = 0.0f;
+        float sweepAngle = 360.0f * (currentPoint - endPoint) / endPoint;
+        boolean useCenter = false;
+
+        canvas.drawArc(ovalBounds, startAngle, sweepAngle, useCenter, paint);
+
+        return bitmap;
     }
 
     public static Bitmap getFolderImage(AppCompatActivity theActivity, DocumentFile theFolder) {
@@ -191,4 +219,5 @@ public class Util {
     public static void doLater(Runnable theRunnable,long delayMS) {
         new Handler(getMainLooper()).postDelayed(theRunnable,500);
     }
+
 }

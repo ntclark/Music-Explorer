@@ -26,7 +26,9 @@ public class Properties {
 
     private DocumentFile currentFolder = null;
     private DocumentFile currentFile = null;
+    private DocumentFile lastPlayedFile = null;
     private Boolean resumePlayOnStart = true;
+    private long currentTrackMS = 0;
 
     private static SharedPreferences preferences = null;
 
@@ -62,11 +64,18 @@ public class Properties {
                 currentFile = null;
             }
 
+            try {
+                lastPlayedFile = DocumentFile.fromTreeUri(theMusicExplorer,Uri.parse(preferences.getString("lastPlayedFile",null)));
+            } catch ( Exception ex1 ) {
+                lastPlayedFile = null;
+            }
+
         } catch ( Exception ex ) {
         }
 
         autoDisplayColumns = preferences.getInt("autoDisplayColumns",AUTO_DISPLAY_COLUMNS);
         resumePlayOnStart = preferences.getBoolean("resumePlayOnStart",resumePlayOnStart);
+        currentTrackMS = preferences.getLong("currentTrackMS",-1);
 
         uuid = preferences.getString("uuid", UUID.randomUUID().toString());
 
@@ -83,7 +92,9 @@ public class Properties {
         autoDisplayColumns = AUTO_DISPLAY_COLUMNS;
         currentFolder = null;
         currentFile = null;
+        lastPlayedFile = null;
         resumePlayOnStart = true;
+        currentTrackMS = -1;
         uuid = UUID.randomUUID().toString();
         savePreferences();
     }
@@ -103,13 +114,12 @@ public class Properties {
         editor.putInt("autoDisplayColumns",autoDisplayColumns);
         editor.putString("currentFolder",null == currentFolder ? null : currentFolder.getUri().toString());
         editor.putString("currentFile",null == currentFile ? null : currentFile.getUri().toString());
+        editor.putString("lastPlayedFile",null == lastPlayedFile ? null : lastPlayedFile.getUri().toString());
         editor.putBoolean("resumePlayOnStart",resumePlayOnStart);
+        editor.putLong("currentTrackMS",currentTrackMS);
+
         editor.putString("uuid",uuid);
 
-        if ( ! ( null == theMusicPlayer ) ) {
-
-
-        }
         editor.commit();
     }
 
@@ -182,6 +192,15 @@ public class Properties {
         return currentFile;
     }
 
+    public void setLastPlayedFile(DocumentFile theFile) {
+        lastPlayedFile = theFile;
+        savePreferences();
+    }
+
+    public DocumentFile getLastPlayedFile() {
+        return lastPlayedFile;
+    }
+
     public void setResumePlayOnStart(Boolean v) {
         resumePlayOnStart = v;
         savePreferences();
@@ -189,6 +208,18 @@ public class Properties {
 
     public Boolean getResumePlayOnStart() {
         return resumePlayOnStart;
+    }
+
+    public void setCurrentTrackMS(long v) {
+        currentTrackMS = v;
+    }
+
+    public long getCurrentTrackMS() {
+        if (  null == lastPlayedFile )
+            currentTrackMS = -1;
+        else if ( ! lastPlayedFile.getName().equals(currentFile.getName()) )
+            currentTrackMS = -1;
+        return currentTrackMS;
     }
 
 }

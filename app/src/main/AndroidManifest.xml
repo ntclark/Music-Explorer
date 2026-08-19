@@ -65,7 +65,7 @@
         </service>
 
         <receiver
-            android:name="com.envisionate.musicexplorer.MusicExplorerReceiver"
+            android:name="com.envisionate.musicexplorer.BroadcastReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="com.envisionate.musicexplorer.START" />

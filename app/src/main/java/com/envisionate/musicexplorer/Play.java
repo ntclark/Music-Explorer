@@ -1,8 +1,11 @@
 package com.envisionate.musicexplorer;
 
 import static android.view.View.INVISIBLE;
+
 import static androidx.media3.common.Player.EVENT_PLAYER_ERROR;
 import static androidx.media3.common.Player.EVENT_TRACKS_CHANGED;
+
+import static com.envisionate.musicexplorer.Globals.PLAYER_TRACK_QUERY_DELAY;
 import static com.envisionate.musicexplorer.Globals.currentAutoScreen;
 import static com.envisionate.musicexplorer.Globals.properties;
 import static com.envisionate.musicexplorer.Globals.theMusicExplorer;
@@ -11,6 +14,7 @@ import static com.envisionate.musicexplorer.Globals.theMusicPlayer;
 
 import android.media.AudioAttributes;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +31,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.ui.PlayerView;
 
 import com.envisionate.carservice.screen.CarEntitiesScreen;
+import com.envisionate.musicexplorer.interfaces.IMusicExplorerPlay;
 
 public class Play extends AppCompatActivity implements Player.Listener {
 
@@ -34,6 +39,10 @@ public class Play extends AppCompatActivity implements Player.Listener {
     private PlayerView playerView = null;
 
     private DocumentFile thePlayingItem = null;
+
+    private Runnable trackPositionQuery = null;
+    private Boolean stopPositionQuery = false;
+    private IMusicExplorerPlay trackMSListener = null;
 
     @OptIn(markerClass = ExperimentalCarApi.class)
     @Override
@@ -96,18 +105,36 @@ public class Play extends AppCompatActivity implements Player.Listener {
         androidx.media3.common.AudioAttributes theAttributes = androidx.media3.common.AudioAttributes.fromPlatformAudioAttributes(new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_MEDIA).build());
         player.setAudioAttributes(theAttributes,true);
 
+        trackPositionQuery = new Runnable() {
+            @Override
+            public void run() {
+                properties.setCurrentTrackMS(player.getCurrentPosition());
+                if ( ! ( null == trackMSListener ) )
+                    trackMSListener.onPlayTrackMSChanged(properties.getCurrentTrackMS());
+                if ( ! ( theMusicPlayer.stopPositionQuery ) )
+                    new Handler(getMainLooper()).postDelayed(trackPositionQuery,PLAYER_TRACK_QUERY_DELAY);
+            }
+        };
+
         player.prepare();
+
+        if ( -1 < properties.getCurrentTrackMS() )
+            player.seekTo(properties.getCurrentTrackMS());
+
         player.play();
 
         String startedByCar = theMusicExplorer.getIntent().getStringExtra("StartedByCar");
 
-        if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
+        if ( ! ( null == startedByCar ) && "true".equals(startedByCar) )
             Util.broadcast(this,"com.envisionate.musicexplorer.STARTED_WITH_PLAY");
 
         String clickIsFromAuto = getIntent().getStringExtra("ClickFromAuto");
 
         if ( ! ( null == clickIsFromAuto ) && "false".equals(clickIsFromAuto) )
             Util.broadcast(theMusicExplorer,"com.envisionate.musicexplorer.PLAY_NOTIFY");
+
+        properties.setLastPlayedFile(properties.getCurrentFile());
+
     }
 
     @Override
@@ -165,8 +192,21 @@ public class Play extends AppCompatActivity implements Player.Listener {
         player.addListener(obj);
     }
 
-    public Boolean isPlaying() {
-        return player.isPlaying();
+    public void addListener(IMusicExplorerPlay obj) {
+        trackMSListener = obj;
+    }
+
+    public long getTrackDuration() {
+        return player.getDuration();
+    }
+
+   @Override
+    public void onIsPlayingChanged(boolean isPlaying) {
+        if ( isPlaying ) {
+            stopPositionQuery = false;
+            new Handler(getMainLooper()).postDelayed(trackPositionQuery,PLAYER_TRACK_QUERY_DELAY);
+        } else
+            stopPositionQuery = true;
     }
 
     @Override
@@ -178,15 +218,15 @@ public class Play extends AppCompatActivity implements Player.Listener {
     @Override
     public void onEvents(Player player, Player.Events events) {
         MediaItem mediaItem = player.getCurrentMediaItem();
-        if ( events.contains(EVENT_TRACKS_CHANGED) )
+        if ( events.contains(EVENT_TRACKS_CHANGED) ) {
             properties.setCurrentFile(mediaItem.localConfiguration.uri.toString());
-        else if ( events.contains(EVENT_PLAYER_ERROR) ) {
+        } else if ( events.contains(EVENT_PLAYER_ERROR) ) {
             ((TextView)findViewById(R.id.player_view_folder)).setVisibility(INVISIBLE);
             String s = DocumentFile.fromTreeUri(this,mediaItem.localConfiguration.uri).getName();
             ((TextView)findViewById(R.id.player_view_album)).setText(String.format("Track: %s",s));
             ((TextView)findViewById(R.id.player_view_artist)).setText(String.format(getString(R.string.track_error)));
         }
-        Log.d("PLAY",events.toString());
+        Log.d("MusicExplorer",events.toString());
     }
 
     @Override

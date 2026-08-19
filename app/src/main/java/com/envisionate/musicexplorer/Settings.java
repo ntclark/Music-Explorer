@@ -5,6 +5,8 @@ import static android.view.View.VISIBLE;
 import static com.envisionate.musicexplorer.Globals.properties;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -34,6 +36,14 @@ public class Settings extends AppCompatActivity {
         setContentView(R.layout.settings_main);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        try {
+            PackageManager manager = getApplicationContext().getPackageManager();
+            PackageInfo info = manager.getPackageInfo(getApplicationContext().getPackageName(), 0);
+            String version = info.versionName;
+            ((TextView)findViewById(R.id.version_info)).setText(String.format("Music Explorer: Version : %s",version));
+        } catch ( Exception ex) {
+        }
 
         String s = Uri.parse(properties.getRootFolder()).getPath();
         if ( -1 < s.lastIndexOf((':') ) )

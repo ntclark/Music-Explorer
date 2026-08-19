@@ -17,10 +17,12 @@ import androidx.car.app.SessionInfo;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.validation.HostValidator;
 import androidx.media3.common.MediaMetadata;
+import androidx.media3.common.Player;
 
 import com.envisionate.carservice.screen.CarEntitiesScreen;
 import com.envisionate.carservice.screen.CarPlayerScreen;
 import com.envisionate.musicexplorer.Globals;
+import com.envisionate.musicexplorer.interfaces.IMusicExplorerPlay;
 
 import org.jspecify.annotations.NonNull;
 
@@ -33,7 +35,8 @@ public class CarService extends CarAppService {
             Globals.currentAutoScreen = null;
             if ( ! ( null == theMusicExplorer ) && ! ( null == theMusicPlayer ) ) {
                 CarPlayerScreen carPlayerScreen = new CarPlayerScreen(getCarContext());
-                theMusicPlayer.addListener(carPlayerScreen);
+                theMusicPlayer.addListener((Player.Listener)carPlayerScreen);
+                theMusicPlayer.addListener((IMusicExplorerPlay)carPlayerScreen);
                 if ( ! ( null == properties.getCurrentFolder() ) && ! ( null == properties.getCurrentFile() ) ) {
                     MediaMetadata md = new MediaMetadata.Builder()
                             .setAlbumTitle(properties.getCurrentFolder().getName())

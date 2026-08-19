@@ -147,16 +147,16 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         });
 
         Boolean playStarted = false;
-        if ( properties.getResumePlayOnStart() && null == theMusicPlayer ) {
+        if ( properties.getResumePlayOnStart() ) {
             if ( ! ( null == properties.getCurrentFile() ) ) {
                 theMusicExplorerInterface.playCurrentTrack(this,null,false);
                 playStarted = true;
             }
         }
 
-        if ( ! playStarted ) {
+       if ( ! playStarted ) {
             String startedByCar = getIntent().getStringExtra("StartedByCar");
-            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) || ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
+            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) ) //|| ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
                 Util.broadcast(this,"com.envisionate.musicexplorer.STARTED");
         }
     }
@@ -301,7 +301,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         layoutFiles();
 
-        if ( ! isViewLayedOut )
+        if ( ! isViewLayedOut && null == CarEntitiesScreen.getWaitingScreen() )
             Util.broadcast(this,"com.envisionate.musicexplorer.NAVIGATION_NOTIFY");
 
         isViewLayedOut = true;
