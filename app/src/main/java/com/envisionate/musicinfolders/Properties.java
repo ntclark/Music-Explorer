@@ -1,5 +1,6 @@
 package com.envisionate.musicinfolders;
 
+import static com.envisionate.musicinfolders.Globals.AUTO_DISPLAY_FOLDERS;
 import static com.envisionate.musicinfolders.Globals.theMusicExplorer;
 
 import android.content.SharedPreferences;
@@ -21,6 +22,7 @@ public class Properties {
     private int folderViewHeight = 0;
     private  int fileViewWidth = 0;
     private int autoDisplayColumns = AUTO_DISPLAY_COLUMNS;
+    private Boolean autoDisplayFolders = AUTO_DISPLAY_FOLDERS;
     public Stack<String> parentList = null;
 
     private DocumentFile currentFolder = null;
@@ -39,7 +41,7 @@ public class Properties {
         folderViewHeight = preferences.getInt("folderViewHeight",0);
         fileViewWidth = preferences.getInt("fileViewWidth",0);
         folderParents = preferences.getString("folderParents",null);
-        if ( "".equals(folderParents) )
+        if ( null == folderParents || "".equals(folderParents) )
             folderParents = null;
         parentList = new Stack<String>();
         if ( ! ( null == folderParents ) )
@@ -73,6 +75,7 @@ public class Properties {
         }
 
         autoDisplayColumns = preferences.getInt("autoDisplayColumns",AUTO_DISPLAY_COLUMNS);
+        autoDisplayFolders = preferences.getBoolean("autoDisplayFolders",AUTO_DISPLAY_FOLDERS);
         resumePlayOnStart = preferences.getBoolean("resumePlayOnStart",resumePlayOnStart);
         currentTrackMS = preferences.getLong("currentTrackMS",-1);
 
@@ -89,6 +92,7 @@ public class Properties {
         folderParents = null;
         parentList.clear();
         autoDisplayColumns = AUTO_DISPLAY_COLUMNS;
+        autoDisplayFolders = AUTO_DISPLAY_FOLDERS;
         currentFolder = null;
         currentFile = null;
         lastPlayedFile = null;
@@ -104,13 +108,14 @@ public class Properties {
         editor.putInt("folderViewWidth",folderViewWidth);
         editor.putInt("folderViewHeight",folderViewHeight);
         editor.putInt("fileViewWidth",fileViewWidth);
-        folderParents  = "";
+        folderParents = "";
         for ( String s : parentList )
             folderParents += s + "{";
         if ( 0 < parentList.size() )
             folderParents = folderParents.substring(0,folderParents.length() - 1);
         editor.putString("folderParents",folderParents);
         editor.putInt("autoDisplayColumns",autoDisplayColumns);
+        editor.putBoolean("autoDisplayFolders",autoDisplayFolders);
         editor.putString("currentFolder",null == currentFolder ? null : currentFolder.getUri().toString());
         editor.putString("currentFile",null == currentFile ? null : currentFile.getUri().toString());
         editor.putString("lastPlayedFile",null == lastPlayedFile ? null : lastPlayedFile.getUri().toString());
@@ -142,6 +147,15 @@ public class Properties {
 
     public void setAutoDisplayColumns(int v) {
         autoDisplayColumns = v;
+        savePreferences();
+    }
+
+    public Boolean getAutoDisplayFolders() {
+        return autoDisplayFolders;
+    }
+
+    public void setAutoDisplayFolders(Boolean v) {
+        autoDisplayFolders = v;
         savePreferences();
     }
 
@@ -194,10 +208,6 @@ public class Properties {
     public void setLastPlayedFile(DocumentFile theFile) {
         lastPlayedFile = theFile;
         savePreferences();
-    }
-
-    public DocumentFile getLastPlayedFile() {
-        return lastPlayedFile;
     }
 
     public void setResumePlayOnStart(Boolean v) {

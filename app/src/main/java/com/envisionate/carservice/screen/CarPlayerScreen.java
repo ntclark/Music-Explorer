@@ -7,6 +7,7 @@ import static com.envisionate.musicinfolders.Globals.currentAutoPlayerScreen;
 import static com.envisionate.musicinfolders.Globals.properties;
 import static com.envisionate.musicinfolders.Globals.theMusicExplorer;
 import static com.envisionate.musicinfolders.Globals.theMusicExplorerInterface;
+import static com.envisionate.musicinfolders.Globals.theMusicPlayer;
 
 import android.os.Handler;
 
@@ -58,10 +59,11 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
     private CarIcon statusCircle = new CarIcon.Builder(IconCompat.createWithResource(getCarContext(), R.drawable.status_circle)).build();
 
     private String albumInformation = null;
+    private String trackInformation = null;
     private String errorInformation = null;
-    private Boolean isPlaying = false;
     private long trackDuration = 0;
     private long currentTrackMS = 0;
+    private Boolean inhibitInvalidate = false;
 
     public CarPlayerScreen(@NonNull CarContext carContext) {
         super(carContext);
@@ -69,6 +71,8 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
 
     @Override
     public @NonNull Template onGetTemplate() {
+
+        inhibitInvalidate = false;
 
         rowSectionBuilder.clearItems();
         gridSectionBuilder.clearItems();
@@ -83,8 +87,11 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
                 .setTitle(null == albumInformation ? " " : albumInformation)
                 .build());
 
-        /*
+        rowSectionBuilder.addItem(new Row.Builder()
+                .setTitle(null == trackInformation ? " " : trackInformation)
+                .build());
 
+        /*
         I wish to fuck I could get some sort of status bar indicater
         to work!!!
 
@@ -119,11 +126,16 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
 
             gridSectionBuilder.addItem(new GridItem.Builder()
                     .setTitle(" ")
-                    .setImage(isPlaying ? playPause : playContinue,GridItem.IMAGE_TYPE_LARGE)
+                    /*
+                    At some point, the following threw a null reference, probably because getPlayer() returned
+                    null from theMusicPlayer
+                    Wasn't able to repeat it
+                    */
+                    .setImage(theMusicPlayer.getPlayer().isPlaying() ? playPause : playContinue,GridItem.IMAGE_TYPE_LARGE)
                     .setOnClickListener(new OnClickListener() {
                         @Override
                         public void onClick() {
-                            if ( isPlaying )
+                            if ( theMusicPlayer.getPlayer().isPlaying() )
                                 theMusicExplorerInterface.pause();
                             else
                                 theMusicExplorerInterface.play();
@@ -154,7 +166,7 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                     Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED");
+                     Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED_BY_CAR");
                 })
                 .build();
 
@@ -169,6 +181,7 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
         getCarContext().getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                inhibitInvalidate = true;
                 theMusicExplorerInterface.gotoParent();
             }
         });
@@ -203,22 +216,22 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
 
     @Override
     public void onIsPlayingChanged(boolean playerIsPlaying) {
-        isPlaying = playerIsPlaying;
-        if ( isPlaying ) {
-            errorInformation = null;
-        }
+        if ( inhibitInvalidate )
+            return;
         invalidate();
-
     }
 
     @Override
     public void onMediaMetadataChanged(MediaMetadata md) {
-        if ( null == md.albumTitle )
+        if ( inhibitInvalidate )
             return;
-        String s = md.title.toString();
-        if ( -1 < s.lastIndexOf('.') )
-            s = s.substring(0,s.lastIndexOf('.'));
-        albumInformation = String.format("Track: %s",s);
+        String newAlbumInformation = String.format("Album: %s",null == md.albumTitle ? "unknown" : md.albumTitle.toString());
+        String newTrackInformation = String.format("Track: %s",null == md.title ? "unknown" : md.title.toString());
+        if ( ! ( null == albumInformation ) && ! ( null == trackInformation ) )
+            if ( newAlbumInformation.equals(albumInformation) && newTrackInformation.equals(trackInformation) )
+                return;
+        albumInformation = newAlbumInformation;
+        trackInformation = newTrackInformation;
         new Handler(getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -229,11 +242,12 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
 
     @Override
     public void onEvents(Player player, Player.Events events) {
-
+        if ( inhibitInvalidate )
+            return;
         if ( events.contains(EVENT_PLAYER_ERROR) ) {
             MediaItem mediaItem = player.getCurrentMediaItem();
             String s = DocumentFile.fromTreeUri(getCarContext(),mediaItem.localConfiguration.uri).getName();
-            albumInformation = String.format("Track: %s",s);
+            trackInformation = String.format("Track: %s",s);
             errorInformation = getCarContext().getString(R.string.track_error);
             new Handler(getMainLooper()).post(new Runnable() {
                 @Override
@@ -242,7 +256,6 @@ public class CarPlayerScreen extends Screen implements Player.Listener, IMusicEx
                 }
             });
         }
-
     }
 
 }

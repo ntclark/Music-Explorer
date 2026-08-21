@@ -29,8 +29,6 @@ import org.jspecify.annotations.NonNull;
 
 public class CarService extends CarAppService {
 
-    protected MediaSession theMediaSession = null;
-
     public class CarSession extends Session {
 
         public Screen onCreateScreen(Intent theIntent) {
@@ -38,9 +36,6 @@ public class CarService extends CarAppService {
             Globals.currentAutoScreen = null;
 
             if ( ! ( null == theMusicExplorer ) && ! ( null == theMusicPlayer ) ) {
-                // These are for implementing MediaPlaybackTemplate - which I think is not supported yet anyway
-                //MediaPlaybackScreen carPlayerScreen = new MediaPlaybackScreen(getCarContext());
-                //return currentAutoScreen = carPlayerScreen;
                 CarPlayerScreen carPlayerScreen = new CarPlayerScreen(getCarContext());
                 theMusicPlayer.addListener((Player.Listener)carPlayerScreen);
                 theMusicPlayer.addListener((IMusicExplorerPlay)carPlayerScreen);
@@ -58,21 +53,11 @@ public class CarService extends CarAppService {
             return currentAutoScreen = new CarEntitiesScreen(getCarContext());
         }
 
-        @OnLifecycleEvent(Lifecycle.Event.ON_CREATE)
-        public void onCreate() {
-            // These are for implementing MediaPlaybackTemplate - which I think is not supported yet anyway
-            //MediaPlaybackManager mediaPlaybackManager = (MediaPlaybackManager)getCarContext().getCarService(CarContext.MEDIA_PLAYBACK_SERVICE);
-            //MediaSession.Token token = theMediaSession.getSessionToken();
-            //MediaSessionCompat.Token token2 = MediaSessionCompat.Token.fromToken(token);
-            //mediaPlaybackManager.registerMediaPlaybackToken(token2);
-        }
     }
 
     public CarService() {
         super();
         currentCarService = this;
-        // These are for implementing MediaPlaybackTemplate - which I think is not supported yet anyway
-        //MediaSession theMediaSession = new MediaSession(getApplicationContext(),"Music Explorer");
     }
 
     @Override

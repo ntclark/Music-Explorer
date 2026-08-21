@@ -80,7 +80,6 @@ public class CarEntitiesScreen extends Screen {
                 }
             },ANDROID_AUTO_DELAY);
             CarText theMessage = new CarText.Builder(getCarContext().getString(R.string.starting_on_phone)).build();
-            //CarToast.makeText(thisScreen.getCarContext(),"Sarting up MusicExplorer",CarToast.LENGTH_LONG).show();
             return new MessageTemplate.Builder(theMessage).setHeader(new Header.Builder().setTitle(new CarText.Builder("Note").build()).build()).build();
         }
 
@@ -196,12 +195,14 @@ public class CarEntitiesScreen extends Screen {
         Action extraAction = new Action.Builder()
                 .setIcon(exitCarIcon)
                 .setOnClickListener(() -> {
-                        Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED");
+                        Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.STOP_REQUESTED_BY_CAR");
                 })
                 .build();
 
+        Header.Builder headerBuilder = new Header.Builder();
+
         if ( ! theMusicExplorerInterface.isRoot() ) {
-            Header theHeader = new Header.Builder()
+            Header theHeader = headerBuilder
                     .setTitle(String.format("Parent: %s",theMusicExplorer.getParentOf(properties.getCurrentFolder(),false).getName()))
                     .setStartHeaderAction(Action.BACK)
                     .addEndHeaderAction(extraAction)
@@ -216,8 +217,13 @@ public class CarEntitiesScreen extends Screen {
                     theMusicExplorerInterface.gotoParent();
                 }
             });
-        } else
-            theSectionedItemTemplateBuilder.setHeader(null);
+        } else {
+            Header theHeader = headerBuilder
+                    .setTitle(getCarContext().getString(R.string.app_name))
+                    .addEndHeaderAction(extraAction)
+                    .build();
+            theSectionedItemTemplateBuilder.setHeader(theHeader);
+        }
 
         currentAutoEntitiesScreen = this;
         currentAutoPlayerScreen = null;

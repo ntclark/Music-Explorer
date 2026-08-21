@@ -33,7 +33,7 @@ public class Settings extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.settings_main);
+        setContentView(R.layout.settings);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -62,7 +62,7 @@ public class Settings extends AppCompatActivity {
 
         ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",properties.getAutoDisplayColumns()));
 
-        ((Button)findViewById(R.id.auto_display_columns_value_plus)).setOnClickListener(new View.OnClickListener() {
+        ((TextView)findViewById(R.id.auto_display_columns_value_plus)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int val = properties.getAutoDisplayColumns() + 1;
                 properties.setAutoDisplayColumns(val);
@@ -70,11 +70,19 @@ public class Settings extends AppCompatActivity {
             }
         });
 
-        ((Button)findViewById(R.id.auto_display_columns_value_minus)).setOnClickListener(new View.OnClickListener() {
+        ((TextView)findViewById(R.id.auto_display_columns_value_minus)).setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 int val = Math.max(1,properties.getAutoDisplayColumns() - 1);
                 properties.setAutoDisplayColumns(val);
                 ((TextView)findViewById(R.id.auto_display_columns_value)).setText(String.format("%d",properties.getAutoDisplayColumns()));
+            }
+        });
+
+        ((Switch)findViewById(R.id.auto_display_folder_icons_switch)).setChecked(properties.getAutoDisplayFolders());
+
+        ((Switch)findViewById(R.id.auto_display_folder_icons_switch)).setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                properties.setAutoDisplayFolders(! properties.getAutoDisplayFolders());
             }
         });
 
@@ -85,17 +93,6 @@ public class Settings extends AppCompatActivity {
                 properties.setResumePlayOnStart(((Switch)v).isChecked());
             }
         });
-/*
-
-        ((Switch)findViewById(R.id.auto_display_folder_icons_switch)).setChecked(theMusicExplorer.properties.getAutoDisplayFolderIcons());
-
-        ((Switch)findViewById(R.id.auto_display_folder_icons_switch)).setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Boolean val = theMusicExplorer.properties.getAutoDisplayFolderIcons();
-                theMusicExplorer.properties.setAutoDisplayFolderIcons(! val);
-            }
-        });
-*/
 
         ((TextView)findViewById(R.id.settings_set_root_warning)).setVisibility(INVISIBLE);
 

@@ -114,7 +114,7 @@ public class Util {
 
         ImageView imageView = null;
 
-        if ( 1 == 0 ) {
+        if ( properties.getAutoDisplayFolders() ) {
             imageView = new ImageView(theActivity);
             imageView.setId(R.id.folder_image_view);
             ConstraintLayout.LayoutParams imageViewParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT);

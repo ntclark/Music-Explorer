@@ -1,15 +1,16 @@
 <resources>
     <!-- Base application theme. -->
     <style name="Base.Theme.MusicExplorer" parent="Theme.AppCompat.DayNight">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
-        <item name="colorOnSurface">#FF000000</item>
     </style>
 
-    <style name="Theme.MusicExplorer" parent="Base.Theme.MusicExplorer" />
+    <style name="Theme.MusicExplorer" parent="Base.Theme.MusicExplorer">
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+        <item name="android:textColor">@color/black</item>
+    </style>
 
     <style name="ThemeOverlay.MusicExplorer.FullscreenContainer" parent="">
         <item name="fullscreenBackgroundColor">@color/light_blue_600</item>
-        <item name="fullscreenTextColor">@color/light_blue_A200</item>
+        <item name="fullscreenTextColor">@color/black</item>
     </style>
 </resources>

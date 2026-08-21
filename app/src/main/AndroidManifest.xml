@@ -9,7 +9,7 @@
         android:resource="@xml/automotive_app_desc" />
 
     <application
-
+        android:name="TrackLaunchedActivities"
         android:allowBackup="true"
         android:icon="@drawable/track"
         android:label="@string/app_name"
@@ -27,7 +27,8 @@
         <activity
             android:name="com.envisionate.musicinfolders.MusicExplorer"
             android:exported="true"
-            android:launchMode="singleTop">
+            android:launchMode="singleTop"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -77,6 +78,7 @@
                 <action android:name="com.envisionate.musicinfolders.PLAY_NOTIFY_UPDATE_TRACK_INFO"/>
                 <action android:name="com.envisionate.musicinfolders.NAVIGATION_NOTIFY"/>
                 <action android:name="com.envisionate.musicinfolders.STOP_REQUESTED"/>
+                <action android:name="com.envisionate.musicinfolders.STOP_REQUESTED_BY_CAR"/>
                 <action android:name="com.envisionate.musicinfolders.CAR_PLAY_STOPPED"/>
             </intent-filter>
         </receiver>

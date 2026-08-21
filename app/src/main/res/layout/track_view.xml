@@ -17,7 +17,6 @@
         android:maxWidth="128dp"
         android:layout_below="@id/file_image_view"
         android:text="@string/app_name"
-        android:textColor="?attr/colorOnSurface"
         android:textSize="12sp"/>
 
 </RelativeLayout>

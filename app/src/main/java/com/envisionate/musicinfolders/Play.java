@@ -52,7 +52,7 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
         theMusicPlayer = this;
 
-        setContentView(R.layout.player_main);
+        setContentView(R.layout.player);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -125,6 +125,7 @@ public class Play extends AppCompatActivity implements Player.Listener {
         if ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) {
             Util.broadcast(this,"com.envisionate.musicinfolders.STARTED_WITH_PLAY");
             theMusicExplorer.getIntent().putExtra("StartedByCar","");
+            theMusicExplorer.setWasStartedByAuto(true);
         }
 
         String clickIsFromAuto = getIntent().getStringExtra("ClickIsFromAuto");
@@ -194,6 +195,10 @@ public class Play extends AppCompatActivity implements Player.Listener {
         finish();
     }
 
+    public ExoPlayer getPlayer() {
+        return player;
+    }
+
     public void addListener(Player.Listener obj) {
         player.addListener(obj);
     }
@@ -217,8 +222,8 @@ public class Play extends AppCompatActivity implements Player.Listener {
 
     @Override
     public void onMediaMetadataChanged(MediaMetadata md) {
-        ((TextView)findViewById(R.id.player_view_album)).setText(String.format("Album: %s",md.albumTitle));
-        ((TextView)findViewById(R.id.player_view_artist)).setText(String.format("Track: %s",md.title));
+        ((TextView)findViewById(R.id.player_view_album)).setText(String.format("Album: %s",null == md.albumTitle ? "unknown" : md.albumTitle));
+        ((TextView)findViewById(R.id.player_view_artist)).setText(String.format("Track: %s",null == md.title ? "unknown" : md.title));
     }
 
     @Override

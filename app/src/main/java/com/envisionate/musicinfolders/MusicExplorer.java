@@ -39,7 +39,7 @@ import java.util.ArrayList;
 
 public class MusicExplorer extends AppCompatActivity implements Player.Listener {
 
-    public class ItemViewAdapter extends ArrayAdapter<itemModel> {
+    public abstract class ItemViewAdapter extends ArrayAdapter<itemModel> {
 
         private int itemTextViewId = 0;
         private int itemImageViewId = 0;
@@ -51,6 +51,8 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
             itemImageViewId = imageViewId;
             itemLayoutId = layoutId;
         }
+
+        abstract String cleanName(DocumentFile theFile);
 
         @Override
         public View getView(int position,View convertView,ViewGroup parent) {
@@ -66,11 +68,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
             TextView textView = itemView.findViewById(itemTextViewId);
 
-            String s = model.getName();
-            if ( -1 < s.lastIndexOf('.') )
-                s = s.substring(0,s.lastIndexOf('.'));
-
-            textView.setText(s);
+            textView.setText(cleanName(model.getDocumentFile()));
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -90,17 +88,30 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         public FolderViewAdapter(Context context, ArrayList<itemModel> list) {
             super(context,  list,R.id.folder_text_view,R.id.folder_image_view,R.layout.folder_view);
         }
+
+        @Override
+        String cleanName(DocumentFile theFile) {
+            return theFile.getName();
+        }
     }
 
     public class TrackViewAdapter extends ItemViewAdapter {
         public TrackViewAdapter(Context context, ArrayList<itemModel> list) {
-            super(context,  list,R.id.file_text_view,R.id.file_image_view,R.layout.track_view);
+            super(context, list,R.id.file_text_view,R.id.file_image_view,R.layout.track_view);
+        }
+
+        @Override
+        String cleanName(DocumentFile theFile) {
+            String s = theFile.getName();
+            if ( -1 < s.lastIndexOf('.') )
+                s = s.substring(0,s.lastIndexOf('.'));
+            return s;
         }
     }
 
-    public View homeView = null;
-    public GridView foldersGridView = null;
-    public GridView tracksGridView = null;
+    private View homeView = null;
+    private GridView foldersGridView = null;
+    private GridView tracksGridView = null;
     private FrameLayout filesFrameLayout = null;
 
     private ArrayList<itemModel> theFolderItems = new ArrayList<itemModel>();
@@ -112,6 +123,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
     private static int filesViewWidth = 0;
     private static int filesViewHeight = 0;
     private static Boolean isViewLayedOut = false;
+    private static Boolean wasStartedByAuto = false;
 
     private ActionBar actionBar = null;
 
@@ -129,7 +141,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        setContentView(R.layout.musicexplorer_main);
+        setContentView(R.layout.musicexplorer);
 
         actionBar = getSupportActionBar();
 
@@ -156,8 +168,10 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
        if ( ! playStarted ) {
             String startedByCar = getIntent().getStringExtra("StartedByCar");
-            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) ) //|| ! ( null == CarEntitiesScreen.getWaitingScreen() ) )
+            if ( ( ! ( null == startedByCar ) && "true".equals(startedByCar) ) ) {
                 Util.broadcast(this,"com.envisionate.musicinfolders.STARTED");
+                wasStartedByAuto = true;
+            }
         }
     }
 
@@ -211,6 +225,14 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         return false;
     }
 
+    public Boolean getWasStartedByAuto() {
+        return wasStartedByAuto;
+    }
+
+    public void setWasStartedByAuto(Boolean v) {
+        wasStartedByAuto = v;
+    }
+
     public void displayFoldersAndFiles(DocumentFile innerPath) {
 
         filesAndFolders theEntities = theUtilities.getCurrentFilesAndFolders(innerPath);
@@ -237,10 +259,8 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         theTrackItems.clear();
 
-        for ( DocumentFile df : theEntities.getFolders() ) {
-            String fn = folderName(df.getName());
-            theFolderItems.add(new itemModel(fn, df));
-        }
+        for ( DocumentFile df : theEntities.getFolders() )
+            theFolderItems.add(new itemModel(df.getName(), df));
 
         for ( DocumentFile df : theEntities.getFiles() )
             theTrackItems.add(new itemModel(df.getName(),df));
@@ -262,6 +282,11 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         tracksViewAdapter.notifyDataSetChanged();
 
         isViewLayedOut = false;
+
+        if ( theMusicExplorerInterface.isRoot() )
+            this.setTitle(this.getString(R.string.app_name));
+        else
+            this.setTitle(properties.getCurrentFolder().getName().toString());
 
         homeView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -292,8 +317,12 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
 
         if ( theFolderItems.isEmpty() )
             foldersViewHeight = 0;
-        else
-            foldersViewHeight = Math.min(rowCount * properties.getFolderViewHeight(),homeViewHeight);
+        else {
+            if ( 0 < tracksGridView.getChildCount() )
+                foldersViewHeight = Math.min(rowCount * properties.getFolderViewHeight(),2 * homeViewHeight / 3);
+            else
+                foldersViewHeight = Math.min(rowCount * properties.getFolderViewHeight(),homeViewHeight);
+        }
 
         foldersGridView.setNumColumns(columnCount);
         RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(foldersViewWidth,foldersViewHeight);
@@ -313,7 +342,7 @@ public class MusicExplorer extends AppCompatActivity implements Player.Listener 
         filesViewWidth = filesFrameLayout.getWidth();
 
         if ( 0 < tracksGridView.getChildCount() ) {
-            ViewGroup fileChild = (ViewGroup) tracksGridView.getChildAt(0);
+            ViewGroup fileChild = (ViewGroup)tracksGridView.getChildAt(0);
             properties.setFileViewWidth(fileChild.getWidth() + fileChild.getPaddingTop() + fileChild.getPaddingBottom());
             int columnCount = filesViewWidth / properties.getFileViewWidth();
             tracksGridView.setNumColumns(columnCount);

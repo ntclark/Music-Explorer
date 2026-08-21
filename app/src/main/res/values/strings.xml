@@ -12,9 +12,9 @@
     <string name="player_view_folder">Folder:</string>
     <string name="player_view_artist">Artist</string>
     <string name="currently_playing">Currently playing</string>
-    <string name="auto_display_columns_label">Select the number of columns to display on the car screen:</string>
-    <string name="auto_display_folder_icons">Should the folder items display using folder icons?"</string>
-    <string name="auto_display_folder_icons_more">Otherwise, just the labels are displayed"</string>
+    <string name="auto_display_columns_label">Select the number of columns to display on the car screen</string>
+    <string name="auto_display_folder_icons">Should the folder items display using folder icons on the car screen?"</string>
+    <string name="auto_display_folder_icons_more">Otherwise, just the labels are displayed which may be easier to read"</string>
     <string name="settings_set_root_warning">Please click Browse to select the root folder in your music files.</string>
     <string name="resume_play_label">Resume playback when started?</string>
     <string name="bluetooth_connected">Bluetooth has connected</string>

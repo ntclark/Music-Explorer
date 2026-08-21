@@ -1,16 +1,19 @@
 package com.envisionate.musicinfolders.interfaces;
 
 import static android.os.Looper.getMainLooper;
+import static com.envisionate.musicinfolders.Globals.currentAutoScreen;
 import static com.envisionate.musicinfolders.Globals.currentPlayerListener;
 import static com.envisionate.musicinfolders.Globals.properties;
 import static com.envisionate.musicinfolders.Globals.theMusicExplorer;
 import static com.envisionate.musicinfolders.Globals.theMusicPlayer;
+import static com.envisionate.musicinfolders.Globals.trackLaunchedActivities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Handler;
 
+import androidx.car.app.CarToast;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.media3.common.Player;
 
@@ -22,6 +25,8 @@ public class IMusicExplorer {
      public void onItemClicked(DocumentFile thePath,Player.Listener theListener,Runnable onReady,Boolean fromAuto) {
         if ( thePath.isDirectory() ) {
             theMusicExplorer.setParentOf(properties.getCurrentFolder());
+            if ( ! ( null == currentAutoScreen ) )
+                CarToast.makeText(currentAutoScreen.getCarContext(),"Navigating",CarToast.LENGTH_SHORT).show();
             properties.setCurrentFolder(thePath);
             theMusicExplorer.displayFoldersAndFiles(thePath);
             if ( ! ( null == onReady ) )
@@ -34,7 +39,9 @@ public class IMusicExplorer {
 
 
     public void gotoParent() {
-        if ( ! ( null == theMusicPlayer ) && theMusicPlayer.hasWindowFocus() ) {
+        if ( ! ( null == currentAutoScreen ) )
+            CarToast.makeText(currentAutoScreen.getCarContext(),"Navigating",CarToast.LENGTH_SHORT).show();
+        if ( "Play".equals(trackLaunchedActivities.getLastLaunchedActivity()) )  {
             theMusicPlayer.stop();
             theMusicExplorer.displayFoldersAndFiles(properties.getCurrentFolder());
         } else {

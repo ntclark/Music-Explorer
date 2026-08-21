@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.annotation.OptIn;
 import androidx.car.app.ScreenManager;
 import androidx.car.app.annotations.ExperimentalCarApi;
+import androidx.media3.common.MediaItem;
 import androidx.media3.common.MediaMetadata;
 import androidx.media3.common.Player;
 
@@ -86,11 +87,7 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
             Util.doLater(new Runnable() {
                 @Override
                 public void run() {
-                    MediaMetadata md = new MediaMetadata.Builder()
-                        .setAlbumTitle(properties.getCurrentFolder().getName())
-                        .setTitle(properties.getCurrentFile().getName())
-                        .build();
-                    currentAutoPlayerScreen.onMediaMetadataChanged(md);
+                    currentAutoPlayerScreen.onMediaMetadataChanged(theMusicPlayer.getPlayer().getMediaMetadata());
                 }
             },ANDROID_AUTO_DELAY);
             return;
@@ -115,7 +112,8 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
             return;
         }
 
-        if ( "com.envisionate.musicinfolders.STOP_REQUESTED".equals(action) ) {
+        if ( "com.envisionate.musicinfolders.STOP_REQUESTED".equals(action) ||
+                    "com.envisionate.musicinfolders.STOP_REQUESTED_BY_CAR".equals(action) ) {
             if ( ! ( null == currentAutoSession ) ) {
                 ScreenManager screenManager = currentAutoScreen.getScreenManager();
                 while ( 1 < screenManager.getStackSize() )
@@ -123,7 +121,10 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
                 screenManager.getTop().finish();
                 currentAutoScreen.getCarContext().finishCarApp();
             }
-            Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.CAR_PLAY_STOPPED");
+            if ( "com.envisionate.musicinfolders.STOP_REQUESTED_BY_CAR".equals(action) && theMusicExplorer.getWasStartedByAuto() )
+                Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.CAR_PLAY_STOPPED");
+            else if ( "com.envisionate.musicinfolders.STOP_REQUESTED".equals(action) )
+                Util.broadcast(theMusicExplorer,"com.envisionate.musicinfolders.CAR_PLAY_STOPPED");
             return;
         }
 
@@ -142,11 +143,7 @@ public class BroadcastReceiver extends android.content.BroadcastReceiver {
         theMusicPlayer.addListener((Player.Listener)currentAutoPlayerScreen);
         theMusicPlayer.addListener((IMusicExplorerPlay)currentAutoPlayerScreen);
         currentAutoScreen.getScreenManager().push(currentAutoPlayerScreen);
-        MediaMetadata md = new MediaMetadata.Builder()
-            .setAlbumTitle(properties.getCurrentFolder().getName())
-            .setTitle(properties.getCurrentFile().getName())
-            .build();
-        currentAutoPlayerScreen.onMediaMetadataChanged(md);
+        currentAutoPlayerScreen.onMediaMetadataChanged(theMusicPlayer.getPlayer().getMediaMetadata());
     }
 
 }
